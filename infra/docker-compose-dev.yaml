@@ -1,0 +1,18 @@
+# gateway => https://medium.com/@gauravraisinghani1998/implementing-spring-cloud-gateway-a-comprehensive-guide-3498aaacfdca
+
+# keycloak => https://medium.com/@iaravinda33/integrating-keycloak-authentication-with-spring-boot-a-complete-guide-98df2c8d244a
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.6
+    environment:
+      - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
+    ports:
+      - "8000:8080"
+    volumes:
+      - ./keycloak_data:/opt/keycloak/data
+    command:
+      - 'start-dev'
+
+volumes:
+  keycloak_data:

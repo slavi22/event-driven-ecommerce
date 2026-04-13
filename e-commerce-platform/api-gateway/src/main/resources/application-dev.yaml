@@ -1,0 +1,12 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${RESOURCE_SERVER_ISSUER_URI}
+          jwk-set-uri: ${RESOURCE_SERVER_JWK_SET_URI}
+
+oauth2:
+  jwt:
+    client-id: ${OAUTH2_CLIENT_ID}
+    user-id-claim: preferred_username
