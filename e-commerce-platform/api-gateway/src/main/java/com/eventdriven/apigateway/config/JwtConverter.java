@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
-class JwtConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+public class JwtConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
     private final JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
     private final Oauth2JwtConfigurationProperties oAuth2JwtConfigurationProperties;
@@ -46,14 +46,15 @@ class JwtConverter implements Converter<Jwt, AbstractAuthenticationToken> {
             return Set.of();
         }
         resourceAccess = jwt.getClaim("resource_access");
-        if (resourceAccess.get(oAuth2JwtConfigurationProperties.getUserIdClaim()) == null) {
+
+        if (resourceAccess.get(oAuth2JwtConfigurationProperties.getClientId()) == null) {
             return Set.of();
         }
 
-        resource = (Map<String, Object>) resourceAccess.get(oAuth2JwtConfigurationProperties.getUserIdClaim());
+        resource = (Map<String, Object>) resourceAccess.get(oAuth2JwtConfigurationProperties.getClientId());
         resourceRoles = (Collection<String>) resource.get("roles");
 
-        // TODO: test
+        // TODO: fix because right now its "ROLE_role_customer"
         return resourceRoles
                 .stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
