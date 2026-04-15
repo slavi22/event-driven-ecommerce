@@ -2,17 +2,39 @@
 
 # keycloak => https://medium.com/@iaravinda33/integrating-keycloak-authentication-with-spring-boot-a-complete-guide-98df2c8d244a
 services:
+  keycloak_db:
+    image: postgres:18.3
+    container_name: keycloak-db
+    volumes:
+      - ./keycloak_data:/var/lib/postgresql/18/docker
+    environment:
+      - POSTGRES_DB=keycloak
+      - POSTGRES_USER=${KEYCLOAK_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${KEYCLOAK_POSTGRES_PASSWORD}
+    networks:
+      - keycloak_network
+
   keycloak:
     image: quay.io/keycloak/keycloak:26.6
+    container_name: keycloak
     environment:
       - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN}
       - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://keycloak-db:5432/keycloak
+      - KC_DB_USERNAME=${KEYCLOAK_POSTGRES_USER}
+      - KC_DB_PASSWORD=${KEYCLOAK_POSTGRES_PASSWORD}
     ports:
       - "8000:8080"
-    volumes:
-      - ./keycloak_data:/opt/keycloak/data
-    command:
-      - 'start-dev'
+    depends_on:
+      - keycloak_db
+    command: 'start-dev'
+    networks:
+      - keycloak_network
+
+networks:
+  keycloak_network:
+    driver: bridge
 
 volumes:
   keycloak_data:
