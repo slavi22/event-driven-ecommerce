@@ -1,0 +1,4 @@
+oauth2:
+  jwt:
+    client-id: e-commerce
+    user-id-claim: preferred_username
