@@ -1,0 +1,110 @@
+package com.eventdriven.product.domain.entity;
+
+import com.eventdriven.product.domain.exception.ProductDomainException;
+import com.eventdriven.product.domain.valueobject.Money;
+import com.eventdriven.product.domain.valueobject.ProductStatus;
+import domain.entity.AggregateRoot;
+import com.eventdriven.product.domain.valueobject.ProductId;
+
+import java.time.Instant;
+import java.util.UUID;
+
+public class Product extends AggregateRoot<ProductId> {
+    private String name;
+    private String description;
+    private Money price;
+    private ProductStatus status;
+    private String category;
+    private Instant createdAt;
+    private Instant updatedAt;
+
+    public static Product create(String name, String description, Money price, String category) {
+        Product product = new Product();
+        product.setId(new ProductId(UUID.randomUUID()));
+        product.name = name;
+        product.description = description;
+        product.price = price;
+        product.category = category;
+        product.status = ProductStatus.ACTIVE;
+        product.createdAt = Instant.now();
+        product.updatedAt = Instant.now();
+
+        product.validate();
+
+        // if i do add a list of domain events, i can add a ProductCreatedEvent here
+
+        return product;
+    }
+
+    private Product() {
+    }
+
+
+    public void updatePrice(Money newPrice) {
+        this.price = newPrice;
+        this.updatedAt = Instant.now();
+
+        // if i do add a list of domain events, i can add a ProductPriceUpdatedEvent here
+    }
+
+    public void markProductAsInactive() {
+        this.status = ProductStatus.INACTIVE;
+        this.updatedAt = Instant.now();
+
+        // if i do add a list of domain events, i can add a ProductOutOfStockEvent here
+    }
+
+    public void markProductAsActive() {
+        this.status = ProductStatus.ACTIVE;
+        this.updatedAt = Instant.now();
+
+        // if i do add a list of domain events, i can add a ProductRestockedEvent here
+    }
+
+    public void rename(String newName) {
+        this.name = newName;
+        this.updatedAt = Instant.now();
+
+        // if i do add a list of domain events, i can add a ProductRenamedEvent here
+    }
+
+    private void validate() {
+        if (name == null || name.isBlank()) {
+            throw new ProductDomainException("Product name cannot be blank");
+        }
+        if (category == null || category.isBlank()) {
+            throw new ProductDomainException("Category is required");
+        }
+        if (price == null) {
+            throw new ProductDomainException("Price is required");
+        }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Money getPrice() {
+        return price;
+    }
+
+    public ProductStatus getStatus() {
+        return status;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+}

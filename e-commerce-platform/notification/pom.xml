@@ -9,7 +9,6 @@
     </parent>
 
     <artifactId>notification</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
     <name>notification</name>
     <description>notification</description>
 

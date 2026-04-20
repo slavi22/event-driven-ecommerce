@@ -9,7 +9,6 @@
     </parent>
 
     <artifactId>stock</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
     <name>stock</name>
     <description>stock</description>
 

@@ -12,6 +12,7 @@
         <module>payment</module>
         <module>notification</module>
         <module>api-gateway</module>
+        <module>common</module>
     </modules>
 
     <groupId>com.eventdriven</groupId>
@@ -27,6 +28,7 @@
         <lombok.version>1.18.44</lombok.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <springdoc.version>3.0.2</springdoc.version>
+        <liquibase.version>5.0.1</liquibase.version>
     </properties>
 
     <dependencyManagement>
@@ -65,7 +67,44 @@
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-core</artifactId>
+                <version>${liquibase.version}</version>
+            </dependency>
+
+            <!-- Project modules -->
+            <dependency>
+                <groupId>com.eventdriven</groupId>
+                <artifactId>common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <profiles>
+        <profile>
+            <id>local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <spring.profiles.active>local</spring.profiles.active>
+            </properties>
+        </profile>
+        <profile>
+            <id>docker</id>
+            <properties>
+                <spring.profiles.active>docker</spring.profiles.active>
+            </properties>
+        </profile>
+        <profile>
+            <id>k8s</id>
+            <properties>
+                <spring.profiles.active>k8s</spring.profiles.active>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>
