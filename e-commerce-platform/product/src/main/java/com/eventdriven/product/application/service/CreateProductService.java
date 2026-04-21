@@ -10,6 +10,7 @@ import com.eventdriven.product.domain.valueobject.Money;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 @Log4j2
@@ -21,7 +22,9 @@ public class CreateProductService implements CreateProductUseCase {
     private final ProductMapper productMapper;
 
     @Override
+    @Transactional
     public ProductResponse createProduct(CreateProductCommand command) {
+        log.info("Creating product with name: {}", command.name());
         Product newProduct = Product.create(
                 command.name(),
                 command.description(),
@@ -29,8 +32,14 @@ public class CreateProductService implements CreateProductUseCase {
                 command.category()
         );
 
+        log.info("Saving product with name: {}", command.name());
         saveProductPort.saveProduct(newProduct);
+        log.info("Product with name: {} saved successfully", command.name());
+
+        // we are supposed to raise an event here if we don't use outbox pattern, but since we are using outbox pattern, we will save the event to outbox table and let the outbox processor handle the event publishing
+        log.info("Saving product with name: {} to outbox table", command.name());
         // save to outbox table later
+        log.info("Product with name: {} saved to outbox table successfully", command.name());
 
         return productMapper.toProductResponse(newProduct);
     }
