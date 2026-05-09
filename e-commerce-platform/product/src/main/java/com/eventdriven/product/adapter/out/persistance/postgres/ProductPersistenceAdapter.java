@@ -1,8 +1,8 @@
 package com.eventdriven.product.adapter.out.persistance.postgres;
 
-import com.eventdriven.product.application.port.out.persistance.DeleteProductPort;
-import com.eventdriven.product.application.port.out.persistance.GetProductPort;
-import com.eventdriven.product.application.port.out.persistance.SaveProductPort;
+import com.eventdriven.product.application.port.out.persistence.DeleteProductPort;
+import com.eventdriven.product.application.port.out.persistence.GetProductPort;
+import com.eventdriven.product.application.port.out.persistence.SaveProductPort;
 import com.eventdriven.product.domain.entity.Product;
 import com.eventdriven.product.domain.valueobject.ProductId;
 import lombok.RequiredArgsConstructor;

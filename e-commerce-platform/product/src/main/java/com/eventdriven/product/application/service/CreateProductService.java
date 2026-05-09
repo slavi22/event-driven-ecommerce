@@ -4,7 +4,7 @@ import com.eventdriven.product.application.command.CreateProductCommand;
 import com.eventdriven.product.application.dto.ProductResponse;
 import com.eventdriven.product.application.mapper.ProductMapper;
 import com.eventdriven.product.application.port.in.CreateProductUseCase;
-import com.eventdriven.product.application.port.out.persistance.SaveProductPort;
+import com.eventdriven.product.application.port.out.persistence.SaveProductPort;
 import com.eventdriven.product.domain.entity.Product;
 import com.eventdriven.product.domain.valueobject.Money;
 import lombok.RequiredArgsConstructor;

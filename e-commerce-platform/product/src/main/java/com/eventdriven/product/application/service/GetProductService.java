@@ -4,7 +4,7 @@ import com.eventdriven.product.application.dto.ProductResponse;
 import com.eventdriven.product.application.exception.ProductNotFoundException;
 import com.eventdriven.product.application.mapper.ProductMapper;
 import com.eventdriven.product.application.port.in.GetProductUseCase;
-import com.eventdriven.product.application.port.out.persistance.GetProductPort;
+import com.eventdriven.product.application.port.out.persistence.GetProductPort;
 import com.eventdriven.product.application.query.GetProductQuery;
 import com.eventdriven.product.domain.entity.Product;
 import com.eventdriven.product.domain.valueobject.ProductId;

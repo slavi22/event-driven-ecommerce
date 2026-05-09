@@ -1,4 +1,4 @@
-package com.eventdriven.product.application.port.out.persistance;
+package com.eventdriven.product.application.port.out.persistence;
 
 import com.eventdriven.product.domain.entity.Product;
 import com.eventdriven.product.domain.valueobject.ProductId;

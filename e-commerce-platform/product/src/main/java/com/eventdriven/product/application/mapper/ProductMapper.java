@@ -8,6 +8,4 @@ import org.mapstruct.MappingConstants;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ProductMapper {
     ProductResponse toProductResponse(Product productDomainEntity);
-
-    Product toProductDomainEntity(ProductResponse productResponse);
 }
