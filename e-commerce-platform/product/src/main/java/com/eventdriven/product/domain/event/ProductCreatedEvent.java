@@ -5,5 +5,7 @@ import domain.event.DomainEvent;
 
 import java.time.Instant;
 
-public record ProductCreatedEvent(Product product, Instant occurredOn) implements DomainEvent {
+// TODO: decide if ill use this at all
+public record ProductCreatedEvent(Product product,
+                                  Instant occurredOn) implements DomainEvent {
 }

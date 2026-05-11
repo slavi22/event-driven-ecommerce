@@ -1,3 +1,7 @@
 spring:
   application:
     name: product
+
+kafka:
+  topics:
+    product-created-topic: product-created-topic

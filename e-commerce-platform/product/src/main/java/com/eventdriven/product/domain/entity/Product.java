@@ -2,6 +2,7 @@ package com.eventdriven.product.domain.entity;
 
 import com.eventdriven.product.domain.exception.ProductDomainException;
 import com.eventdriven.product.domain.valueobject.Money;
+import com.eventdriven.product.domain.valueobject.ProductCategory;
 import com.eventdriven.product.domain.valueobject.ProductStatus;
 import domain.entity.AggregateRoot;
 import com.eventdriven.product.domain.valueobject.ProductId;
@@ -14,11 +15,11 @@ public class Product extends AggregateRoot<ProductId> {
     private String description;
     private Money price;
     private ProductStatus status;
-    private String category;
+    private ProductCategory category;
     private Instant createdAt;
     private Instant updatedAt;
 
-    public static Product create(String name, String description, Money price, String category) {
+    public static Product create(String name, String description, Money price, ProductCategory category) {
         Product product = new Product();
         product.setId(new ProductId(UUID.randomUUID()));
         product.name = name;
@@ -33,6 +34,21 @@ public class Product extends AggregateRoot<ProductId> {
 
         // if i do add a list of domain events, i can add a ProductCreatedEvent here
 
+        return product;
+    }
+
+    public static Product reconstitute(ProductId id, String name, String description,
+                                       Money price, ProductCategory category,
+                                       ProductStatus status, Instant createdAt, Instant updatedAt) {
+        Product product = new Product();
+        product.setId(id);
+        product.name = name;
+        product.description = description;
+        product.price = price;
+        product.category = category;
+        product.status = status;
+        product.createdAt = createdAt;
+        product.updatedAt = updatedAt;
         return product;
     }
 
@@ -72,7 +88,7 @@ public class Product extends AggregateRoot<ProductId> {
         if (name == null || name.isBlank()) {
             throw new ProductDomainException("Product name cannot be blank");
         }
-        if (category == null || category.isBlank()) {
+        if (category == null) {
             throw new ProductDomainException("Category is required");
         }
         if (price == null) {
@@ -96,7 +112,7 @@ public class Product extends AggregateRoot<ProductId> {
         return status;
     }
 
-    public String getCategory() {
+    public ProductCategory getCategory() {
         return category;
     }
 

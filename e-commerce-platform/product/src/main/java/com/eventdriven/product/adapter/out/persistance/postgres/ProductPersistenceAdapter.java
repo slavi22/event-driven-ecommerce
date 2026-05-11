@@ -20,7 +20,7 @@ public class ProductPersistenceAdapter implements SaveProductPort, GetProductPor
 
 
     @Override
-    public Product saveProduct(Product product) {
+    public Product save(Product product) {
         ProductEntity productEntity = persistenceMapper.toProductEntity(product);
         return persistenceMapper.toProductDomainEntity(productJpaRepository.save(productEntity));
     }
