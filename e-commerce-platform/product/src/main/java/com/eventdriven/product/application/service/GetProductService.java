@@ -16,7 +16,6 @@ import org.springframework.validation.annotation.Validated;
 
 @Log4j2
 @Service
-@Validated
 @RequiredArgsConstructor
 public class GetProductService implements GetProductUseCase {
     private final GetProductPort getProductPort;

@@ -21,7 +21,6 @@ import java.time.Instant;
 
 @Log4j2
 @Service
-@Validated
 @RequiredArgsConstructor
 public class CreateProductService implements CreateProductUseCase {
     private final SaveProductPort saveProductPort;
@@ -31,7 +30,7 @@ public class CreateProductService implements CreateProductUseCase {
 
     @Override
     @Transactional
-    public ProductResponse createProduct(CreateProductCommand command) {
+    public ProductResponse createProduct( CreateProductCommand command) {
         log.info("Creating product with name: {}", command.name());
         Product newProduct = Product.create(
                 command.name(),
