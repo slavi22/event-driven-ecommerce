@@ -1,6 +1,7 @@
 package com.eventdriven.product.adapter.in.web;
 
 import com.eventdriven.product.adapter.in.web.dto.request.CreateProductRequest;
+import com.eventdriven.product.adapter.in.web.dto.response.CreateProductResponse;
 import com.eventdriven.product.application.command.CreateProductCommand;
 import com.eventdriven.product.application.port.in.CreateProductUseCase;
 import com.eventdriven.product.domain.exception.ProductDomainException;
@@ -16,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -47,7 +49,12 @@ class ProductCommandControllerTest {
                 new CreateProductCommand("Product Name", "Product Description", new BigDecimal("9.99"),
                                          ProductCategory.ELECTRONICS);
 
+        CreateProductResponse response =
+                new CreateProductResponse("Product Name", "Product Description", new BigDecimal("9.99"),
+                                          "ELECTRONICS", "ACTIVE", ZonedDateTime.now());
+
         when(productWebMapper.toCreateProductCommand(any(CreateProductRequest.class))).thenReturn(command);
+        when(productWebMapper.toCreateProductResponse(any())).thenReturn(response);
 
         // Act & Assert
         mockMvc.perform(post("/api/v1/products")
