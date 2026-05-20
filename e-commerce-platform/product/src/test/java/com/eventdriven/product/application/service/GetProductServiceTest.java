@@ -9,6 +9,7 @@ import com.eventdriven.product.domain.entity.Product;
 import com.eventdriven.product.domain.valueobject.Money;
 import com.eventdriven.product.domain.valueobject.ProductCategory;
 import com.eventdriven.product.domain.valueobject.ProductId;
+import com.eventdriven.product.domain.valueobject.ProductStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,7 +47,7 @@ class GetProductServiceTest {
                                          Money.of(new BigDecimal("9.99")), ProductCategory.ELECTRONICS);
         ProductResponse expectedResponse = new ProductResponse(
                 "Product Name", "Product Description",
-                new BigDecimal("9.99"), "ELECTRONICS", "ACTIVE", product.getCreatedAt());
+                new BigDecimal("9.99"), ProductCategory.ELECTRONICS, ProductStatus.ACTIVE, product.getCreatedAt());
 
         when(getProductPort.getProductByProductId(any(ProductId.class))).thenReturn(Optional.of(product));
         when(productMapper.toProductResponse(any(Product.class))).thenReturn(expectedResponse);
