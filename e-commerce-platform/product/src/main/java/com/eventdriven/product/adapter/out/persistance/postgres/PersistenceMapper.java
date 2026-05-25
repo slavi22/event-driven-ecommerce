@@ -6,7 +6,6 @@ import com.eventdriven.product.domain.valueobject.ProductId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
-import org.mapstruct.ValueMapping;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface PersistenceMapper {
@@ -23,7 +22,7 @@ public interface PersistenceMapper {
         );
     }
 
-    @Mapping(target = "id", expression = "java(product.getId().getValue())")
-    @Mapping(target = "price", expression = "java(product.getPrice().getAmount())")
+    @Mapping(target = "id", expression = "java(productDomainEntity.getId().getValue())")
+    @Mapping(target = "price", expression = "java(productDomainEntity.getPrice().getAmount())")
     ProductEntity toProductEntity(Product productDomainEntity);
 }
