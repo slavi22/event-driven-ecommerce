@@ -29,7 +29,7 @@ public class CreateProductService implements CreateProductUseCase {
     private final JsonMapper jsonMapper;
 
     @Override
-    @Transactional
+    @Transactional // we don't need to specify the transaction manager here since we marked the command as primary bean
     public ProductResponse createProduct( CreateProductCommand command) {
         log.info("Creating product with name: {}", command.name());
         Product newProduct = Product.create(

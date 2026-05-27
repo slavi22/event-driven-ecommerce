@@ -1,4 +1,4 @@
-package com.eventdriven.product.adapter.out.persistance.postgres;
+package com.eventdriven.product.adapter.out.persistence.command.postgres;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

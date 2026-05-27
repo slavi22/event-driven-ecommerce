@@ -1,4 +1,4 @@
-package com.eventdriven.product.adapter.out.messaging;
+package com.eventdriven.product.adapter.out.messaging.kafka;
 
 import lombok.Getter;
 import lombok.Setter;

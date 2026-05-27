@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    command:
+      # TODO: why i might need jdbc-url instead of url => https://stackoverflow.com/a/51950877; TEST
+      url: jdbc:postgresql://localhost:5432/product_command
+      username: ${POSTGRES_COMMAND_USER}
+      password: ${POSTGRES_COMMAND_PASSWORD}
+      driver-class-name: org.postgresql.Driver
+    query:
+      url: jdbc:postgresql://localhost:5432/product_query
+      username: ${POSTGRES_QUERY_USER}
+      password: ${POSTGRES_QUERY_PASSWORD}
+      driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
+  kafka:
+    bootstrap-servers: localhost:9092

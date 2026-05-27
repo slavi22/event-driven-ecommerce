@@ -1,8 +1,9 @@
-package com.eventdriven.product.adapter.out.messaging;
+package com.eventdriven.product.adapter.out.messaging.kafka;
 
-import com.eventdriven.product.adapter.out.persistance.postgres.OutboxEventEntity;
-import com.eventdriven.product.adapter.out.persistance.postgres.OutboxEventJpaRepository;
+import com.eventdriven.product.adapter.out.persistence.command.postgres.OutboxEventEntity;
+import com.eventdriven.product.adapter.out.persistence.command.postgres.OutboxEventJpaRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -12,20 +13,24 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Log4j2
 public class OutboxEventPoller {
     private final OutboxEventJpaRepository outboxEventJpaRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final KafkaTopicProperties kafkaTopicProperties;
 
     @Scheduled(fixedDelay = 10_000) // every 10 secs
-    @Transactional
+    @Transactional // TODO: maybe add kafka transaction manager here ?
     public void readOutbox() {
         List<OutboxEventEntity> unpublishedEvents = outboxEventJpaRepository.findByPublishedFalse();
+        log.info("Fetching unpublished events from outbox, found {} events", unpublishedEvents.size());
+        log.info("Going to publish events to kafka topic: {}", kafkaTopicProperties.getProductCreatedTopic());
         unpublishedEvents.forEach(event -> {
             kafkaTemplate.send(kafkaTopicProperties.getProductCreatedTopic(), event.getAggregateId(), event.getPayload());
             event.setPublished(true);
         });
+        log.info("Finished publishing events to kafka topic: {}", kafkaTopicProperties.getProductCreatedTopic());
         // we don't need to call saveAll here because the entities are managed by JPA and since we have @Transactioanal if everything goes ok it will be automatically updated
-        //outboxEventJpaRepository.saveAll(unpublishedEvents);
+        // outboxEventJpaRepository.saveAll(unpublishedEvents);
     }
 }

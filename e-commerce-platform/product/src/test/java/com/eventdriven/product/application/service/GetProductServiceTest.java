@@ -3,7 +3,7 @@ package com.eventdriven.product.application.service;
 import com.eventdriven.product.application.dto.ProductResponse;
 import com.eventdriven.product.application.exception.ProductNotFoundException;
 import com.eventdriven.product.application.mapper.ProductMapper;
-import com.eventdriven.product.application.port.out.persistence.GetProductPort;
+import com.eventdriven.product.application.port.out.persistence.GetProductProjectionPort;
 import com.eventdriven.product.application.query.GetProductQuery;
 import com.eventdriven.product.domain.entity.Product;
 import com.eventdriven.product.domain.valueobject.Money;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 class GetProductServiceTest {
 
     @Mock
-    private GetProductPort getProductPort;
+    private GetProductProjectionPort getProductProjectionPort;
     @Mock
     private ProductMapper productMapper;
 
@@ -49,7 +49,7 @@ class GetProductServiceTest {
                 "Product Name", "Product Description",
                 new BigDecimal("9.99"), ProductCategory.ELECTRONICS, ProductStatus.ACTIVE, product.getCreatedAt());
 
-        when(getProductPort.getProductByProductId(any(ProductId.class))).thenReturn(Optional.of(product));
+        when(getProductProjectionPort.getProductByProductId(any(ProductId.class))).thenReturn(Optional.of(product));
         when(productMapper.toProductResponse(any(Product.class))).thenReturn(expectedResponse);
 
         // Act
@@ -57,7 +57,7 @@ class GetProductServiceTest {
 
         // Assert
         assertEquals(expectedResponse, result);
-        verify(getProductPort).getProductByProductId(any(ProductId.class));
+        verify(getProductProjectionPort).getProductByProductId(any(ProductId.class));
         verify(productMapper).toProductResponse(any(Product.class));
     }
 
@@ -67,11 +67,11 @@ class GetProductServiceTest {
         // Arrange
         UUID productId = UUID.randomUUID();
         GetProductQuery query = new GetProductQuery(productId);
-        when(getProductPort.getProductByProductId(any(ProductId.class))).thenReturn(Optional.empty());
+        when(getProductProjectionPort.getProductByProductId(any(ProductId.class))).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(ProductNotFoundException.class, () -> getProductService.getProduct(query));
-        verify(getProductPort).getProductByProductId(any(ProductId.class));
+        verify(getProductProjectionPort).getProductByProductId(any(ProductId.class));
     }
 
 }

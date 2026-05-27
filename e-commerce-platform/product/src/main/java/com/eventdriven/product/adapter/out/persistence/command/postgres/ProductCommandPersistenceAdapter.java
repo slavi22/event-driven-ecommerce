@@ -1,19 +1,15 @@
-package com.eventdriven.product.adapter.out.persistance.postgres;
+package com.eventdriven.product.adapter.out.persistence.command.postgres;
 
 import com.eventdriven.product.application.port.out.persistence.DeleteProductPort;
-import com.eventdriven.product.application.port.out.persistence.GetProductPort;
 import com.eventdriven.product.application.port.out.persistence.SaveProductPort;
 import com.eventdriven.product.domain.entity.Product;
 import com.eventdriven.product.domain.valueobject.ProductId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Optional;
-
 @Component
 @RequiredArgsConstructor
-public class ProductPersistenceAdapter implements SaveProductPort, GetProductPort, DeleteProductPort {
+class ProductCommandPersistenceAdapter implements SaveProductPort, DeleteProductPort {
 
     private final ProductJpaRepository productJpaRepository;
     private final PersistenceMapper persistenceMapper;
@@ -23,20 +19,6 @@ public class ProductPersistenceAdapter implements SaveProductPort, GetProductPor
     public Product save(Product product) {
         ProductEntity productEntity = persistenceMapper.toProductEntity(product);
         return persistenceMapper.toProductDomainEntity(productJpaRepository.save(productEntity));
-    }
-
-    @Override
-    public List<Product> getProducts() {
-        return productJpaRepository.findAll()
-                                   .stream()
-                                   .map(persistenceMapper::toProductDomainEntity)
-                                   .toList();
-    }
-
-    @Override
-    public Optional<Product> getProductByProductId(ProductId productId) {
-        Optional<ProductEntity> productEntity = productJpaRepository.findById(productId.getValue());
-        return productEntity.map(persistenceMapper::toProductDomainEntity);
     }
 
     @Override

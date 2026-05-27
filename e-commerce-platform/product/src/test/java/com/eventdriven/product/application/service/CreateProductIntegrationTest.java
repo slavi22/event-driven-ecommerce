@@ -1,8 +1,8 @@
 package com.eventdriven.product.application.service;
 
-import com.eventdriven.product.adapter.out.persistance.postgres.OutboxEventEntity;
-import com.eventdriven.product.adapter.out.persistance.postgres.OutboxEventJpaRepository;
-import com.eventdriven.product.adapter.out.persistance.postgres.ProductJpaRepository;
+import com.eventdriven.product.adapter.out.persistence.command.postgres.OutboxEventEntity;
+import com.eventdriven.product.adapter.out.persistence.command.postgres.OutboxEventJpaRepository;
+import com.eventdriven.product.adapter.out.persistence.command.postgres.ProductJpaRepository;
 import com.eventdriven.product.application.command.CreateProductCommand;
 import com.eventdriven.product.application.port.in.CreateProductUseCase;
 import com.eventdriven.product.application.port.out.persistence.SaveOutboxEventPort;
@@ -14,8 +14,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -35,13 +37,26 @@ import static org.mockito.Mockito.doThrow;
 class CreateProductIntegrationTest {
 
     @Container
-    @ServiceConnection
-    static PostgreSQLContainer<?> postgreSQLContainer =
+    static PostgreSQLContainer<?> commandDb =
             new PostgreSQLContainer<>(DockerImageName.parse("postgres:18.3")).withDatabaseName("product");
 
     @Container
-    @ServiceConnection
+    static PostgreSQLContainer<?> queryDb =
+            new PostgreSQLContainer<>(DockerImageName.parse("postgres:18.3")).withDatabaseName("product");
+
+    @Container
     static KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("apache/kafka:4.2.0"));
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.command.jdbc-url", commandDb::getJdbcUrl);
+        registry.add("spring.datasource.command.username", commandDb::getUsername);
+        registry.add("spring.datasource.command.password", commandDb::getPassword);
+        registry.add("spring.datasource.query.jdbc-url", queryDb::getJdbcUrl);
+        registry.add("spring.datasource.query.username", queryDb::getUsername);
+        registry.add("spring.datasource.query.password", queryDb::getPassword);
+        registry.add("spring.kafka.bootstrap-servers", kafkaContainer::getBootstrapServers);
+    }
 
     @Autowired
     private CreateProductUseCase createProductUseCase;

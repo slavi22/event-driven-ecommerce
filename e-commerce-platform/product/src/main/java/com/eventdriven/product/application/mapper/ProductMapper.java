@@ -11,10 +11,14 @@ import java.math.BigDecimal;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ProductMapper {
-    @Mapping(target = "price", source = "price")
+    @Mapping(target = "price", expression = "java(productDomainEntity.getPrice().getAmount())")
+    ProductResponse toProductResponse(Product productDomainEntity);
+
+    // i can either do this, or use an expression in the mapping annotation
+    /*@Mapping(target = "price", source = "price")
     ProductResponse toProductResponse(Product productDomainEntity);
 
     default BigDecimal map(Money value) {
         return value.getAmount();
-    }
+    }*/
 }
