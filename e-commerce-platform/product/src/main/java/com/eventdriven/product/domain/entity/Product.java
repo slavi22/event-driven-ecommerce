@@ -3,9 +3,9 @@ package com.eventdriven.product.domain.entity;
 import com.eventdriven.product.domain.exception.ProductDomainException;
 import com.eventdriven.product.domain.valueobject.Money;
 import com.eventdriven.product.domain.valueobject.ProductCategory;
+import com.eventdriven.product.domain.valueobject.ProductId;
 import com.eventdriven.product.domain.valueobject.ProductStatus;
 import domain.entity.AggregateRoot;
-import com.eventdriven.product.domain.valueobject.ProductId;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -55,6 +55,18 @@ public class Product extends AggregateRoot<ProductId> {
     private Product() {
     }
 
+    public void update(String name, String description, Money price, ProductCategory category) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.category = category;
+        this.updatedAt = Instant.now();
+        validate();
+    }
+
+    /*
+    TODO: this will be used if i want granular methods to update the product,
+     instead of just a single updateProduct method that takes an UpdateProductCommand
 
     public void updatePrice(Money newPrice) {
         this.price = newPrice;
@@ -82,7 +94,7 @@ public class Product extends AggregateRoot<ProductId> {
         this.updatedAt = Instant.now();
 
         // if i do add a list of domain events, i can add a ProductRenamedEvent here
-    }
+    }*/
 
     private void validate() {
         if (name == null || name.isBlank()) {

@@ -1,11 +1,17 @@
 package com.eventdriven.product.adapter.in.web;
 
 import com.eventdriven.product.adapter.in.web.dto.request.CreateProductRequest;
+import com.eventdriven.product.adapter.in.web.dto.request.UpdateProductRequest;
 import com.eventdriven.product.adapter.in.web.dto.response.CreateProductResponse;
+import com.eventdriven.product.adapter.in.web.dto.response.UpdateProductResponse;
 import com.eventdriven.product.application.command.CreateProductCommand;
+import com.eventdriven.product.application.command.UpdateProductCommand;
+import com.eventdriven.product.application.dto.UpdateProductResult;
 import com.eventdriven.product.application.port.in.CreateProductUseCase;
+import com.eventdriven.product.application.port.in.UpdateProductUseCase;
 import com.eventdriven.product.domain.exception.ProductDomainException;
 import com.eventdriven.product.domain.valueobject.ProductCategory;
+import com.eventdriven.product.domain.valueobject.ProductStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +24,15 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProductCommandController.class)
 class ProductCommandControllerTest {
@@ -31,11 +40,15 @@ class ProductCommandControllerTest {
     @MockitoBean
     private CreateProductUseCase createProductUseCase;
     @MockitoBean
+    private UpdateProductUseCase updateProductUseCase;
+    @MockitoBean
     private ProductWebMapper productWebMapper;
     @Autowired
     private MockMvc mockMvc;
     @Autowired
     private JsonMapper jsonMapper;
+
+    // Create Product Tests
 
     @Test
     @DisplayName("Creating a product with valid request should return created product")
@@ -43,11 +56,11 @@ class ProductCommandControllerTest {
         // Arrange
         CreateProductRequest request =
                 new CreateProductRequest("Product Name", "Product Description", new BigDecimal("9.99"),
-                                         "ELECTRONICS");
+                                         "ELECTRONICS", 10);
 
         CreateProductCommand command =
                 new CreateProductCommand("Product Name", "Product Description", new BigDecimal("9.99"),
-                                         ProductCategory.ELECTRONICS);
+                                         ProductCategory.ELECTRONICS, 10);
 
         CreateProductResponse response =
                 new CreateProductResponse("Product Name", "Product Description", new BigDecimal("9.99"),
@@ -73,7 +86,7 @@ class ProductCommandControllerTest {
     void testCreateProduct_withInvalidRequest_shouldReturnBadRequest() throws Exception {
         // Arrange
         CreateProductRequest request =
-                new CreateProductRequest("", "", null, "");
+                new CreateProductRequest("", "", null, "", null);
         String expectedDetailValue = "Invalid request body";
 
         // Act & Assert
@@ -91,10 +104,10 @@ class ProductCommandControllerTest {
         // Arrange
         CreateProductRequest request =
                 new CreateProductRequest("Product Name", "Product Description", new BigDecimal("9.99"),
-                                         "ELECTRONICS");
+                                         "ELECTRONICS", 10);
         CreateProductCommand command =
                 new CreateProductCommand("Product Name", "Product Description", new BigDecimal("9.99"),
-                                         ProductCategory.ELECTRONICS);
+                                         ProductCategory.ELECTRONICS, 10);
 
         when(productWebMapper.toCreateProductCommand(any(CreateProductRequest.class))).thenReturn(command);
         when(createProductUseCase.createProduct(any(CreateProductCommand.class))).thenThrow(
@@ -102,6 +115,80 @@ class ProductCommandControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/v1/products")
+                                .content(jsonMapper.writeValueAsBytes(request))
+                                .contentType(MediaType.APPLICATION_JSON))
+               .andExpect(status().isInternalServerError());
+    }
+
+    // Update Product Tests
+
+    @Test
+    @DisplayName("Updating a product with valid request should return updated product")
+    void testUpdateProduct_withValidRequest_shouldReturnUpdatedProduct() throws Exception {
+        // Arrange
+        UpdateProductRequest request = new UpdateProductRequest(
+                UUID.randomUUID().toString(), "Updated Name", "Updated Description",
+                new BigDecimal("19.99"), "ELECTRONICS");
+
+        UpdateProductCommand command = new UpdateProductCommand(
+                request.productId(), "Updated Name", "Updated Description",
+                new BigDecimal("19.99"), ProductCategory.ELECTRONICS);
+
+        UpdateProductResult result = new UpdateProductResult("Updated Name", "Updated Description",
+                                                             new BigDecimal("19.99"), ProductCategory.ELECTRONICS, ProductStatus.ACTIVE);
+
+        UpdateProductResponse response = new UpdateProductResponse(
+                "Updated Name", "Updated Description", new BigDecimal("19.99"), "ELECTRONICS", "ACTIVE");
+
+        when(updateProductUseCase.updateProduct(command)).thenReturn(result);
+        when(productWebMapper.toUpdateProductCommand(any(UpdateProductRequest.class))).thenReturn(command);
+        when(productWebMapper.toUpdateProductResponse(any(UpdateProductResult.class))).thenReturn(response);
+
+        // Act & Assert
+        mockMvc.perform(put("/api/v1/products")
+                                .content(jsonMapper.writeValueAsBytes(request))
+                                .contentType(MediaType.APPLICATION_JSON))
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$.name").value(response.name()))
+               .andExpect(jsonPath("$.description").value(response.description()))
+               .andExpect(jsonPath("$.price").value(response.price()));
+
+        verify(updateProductUseCase).updateProduct(any(UpdateProductCommand.class));
+    }
+
+    @Test
+    @DisplayName("Updating a product with invalid request should return bad request")
+    void testUpdateProduct_withInvalidRequest_shouldReturnBadRequest() throws Exception {
+        // Arrange
+        UpdateProductRequest request = new UpdateProductRequest("", "", null, null, "");
+
+        // Act & Assert
+        mockMvc.perform(put("/api/v1/products")
+                                .content(jsonMapper.writeValueAsBytes(request))
+                                .contentType(MediaType.APPLICATION_JSON))
+               .andExpect(status().isBadRequest())
+               .andExpect(jsonPath("$.detail").value("Invalid request body"))
+               .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()));
+    }
+
+    @Test
+    @DisplayName("Updating a product when use case throws exception should return internal server error")
+    void testUpdateProduct_whenUseCaseThrowsException_shouldReturnInternalServerError() throws Exception {
+        // Arrange
+        UpdateProductRequest request = new UpdateProductRequest(
+                UUID.randomUUID().toString(), "Updated Name", "Updated Description",
+                new BigDecimal("19.99"), "ELECTRONICS");
+
+        UpdateProductCommand command = new UpdateProductCommand(
+                request.productId(), "Updated Name", "Updated Description",
+                new BigDecimal("19.99"), ProductCategory.ELECTRONICS);
+
+        when(productWebMapper.toUpdateProductCommand(any(UpdateProductRequest.class))).thenReturn(command);
+        when(updateProductUseCase.updateProduct(any(UpdateProductCommand.class)))
+                .thenThrow(new ProductDomainException("error"));
+
+        // Act & Assert
+        mockMvc.perform(put("/api/v1/products")
                                 .content(jsonMapper.writeValueAsBytes(request))
                                 .contentType(MediaType.APPLICATION_JSON))
                .andExpect(status().isInternalServerError());

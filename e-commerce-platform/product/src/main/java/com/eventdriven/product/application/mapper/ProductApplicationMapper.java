@@ -1,18 +1,24 @@
 package com.eventdriven.product.application.mapper;
 
-import com.eventdriven.product.application.dto.ProductResponse;
+import com.eventdriven.product.application.dto.CreateProductResult;
+import com.eventdriven.product.application.dto.UpdateProductResult;
 import com.eventdriven.product.domain.entity.Product;
-import com.eventdriven.product.domain.valueobject.Money;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
-public interface ProductMapper {
+public interface ProductApplicationMapper {
     @Mapping(target = "price", expression = "java(productDomainEntity.getPrice().getAmount())")
-    ProductResponse toProductResponse(Product productDomainEntity);
+    CreateProductResult toCreateProductResult(Product productDomainEntity);
+
+    List<CreateProductResult> toCreateProductResultList(List<Product> products);
+
+    @Mapping(target = "price", expression = "java(productDomainEntity.getPrice().getAmount())")
+    UpdateProductResult toUpdateProductResult(Product productDomainEntity);
+
 
     // i can either do this, or use an expression in the mapping annotation
     /*@Mapping(target = "price", source = "price")

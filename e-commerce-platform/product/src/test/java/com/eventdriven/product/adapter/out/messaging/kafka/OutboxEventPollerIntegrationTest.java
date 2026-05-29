@@ -12,7 +12,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.BytesDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
@@ -103,7 +103,8 @@ class OutboxEventPollerIntegrationTest {
         // Assert
         try (KafkaConsumer<String, ProductCreatedEventPayload> consumer = buildConsumer()) {
             consumer.subscribe(List.of(topic));
-            ConsumerRecords<String, ProductCreatedEventPayload> records = KafkaTestUtils.getRecords(consumer, Duration.ofSeconds(5));
+            ConsumerRecords<String, ProductCreatedEventPayload> records =
+                    KafkaTestUtils.getRecords(consumer, Duration.ofSeconds(5));
             assertEquals(1, records.count());
             ConsumerRecord<String, ProductCreatedEventPayload> consumerRecord = records.iterator().next();
             assertEquals(savedEntity.getAggregateId(), consumerRecord.key());
@@ -125,7 +126,8 @@ class OutboxEventPollerIntegrationTest {
         // Assert
         try (KafkaConsumer<String, ProductCreatedEventPayload> consumer = buildConsumer()) {
             consumer.subscribe(List.of(topic));
-            ConsumerRecords<String, ProductCreatedEventPayload> records = KafkaTestUtils.getRecords(consumer, Duration.ofSeconds(2));
+            ConsumerRecords<String, ProductCreatedEventPayload> records =
+                    KafkaTestUtils.getRecords(consumer, Duration.ofSeconds(2));
             assertEquals(0, records.count());
         }
 
@@ -136,7 +138,7 @@ class OutboxEventPollerIntegrationTest {
         ProductCreatedEventPayload payload = new ProductCreatedEventPayload(
                 productId, "Test Product", "A test product",
                 new BigDecimal("9.99"), ProductCategory.ELECTRONICS,
-                ProductStatus.ACTIVE, Instant.parse("2024-01-01T00:00:00Z")
+                ProductStatus.ACTIVE, 10, Instant.now()
         );
         OutboxEventEntity event = new OutboxEventEntity();
         event.setAggregateId(UUID.randomUUID().toString());

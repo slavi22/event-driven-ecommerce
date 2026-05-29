@@ -1,7 +1,7 @@
 package com.eventdriven.product.adapter.in.messaging.kafka;
 
-import com.eventdriven.product.application.port.out.persistence.GetProductProjectionPort;
-import com.eventdriven.product.application.port.out.persistence.SaveProductProjectionPort;
+import com.eventdriven.product.application.port.out.persistence.query.GetProductQueryPort;
+import com.eventdriven.product.application.port.out.persistence.query.SaveProductQueryPort;
 import com.eventdriven.product.domain.entity.Product;
 import com.eventdriven.product.domain.event.ProductCreatedEventPayload;
 import com.eventdriven.product.domain.valueobject.ProductId;
@@ -21,8 +21,8 @@ import java.util.UUID;
 @Log4j2
 class ProductCreatedKafkaListener {
 
-    private final GetProductProjectionPort getProductProjectionPort;
-    private final SaveProductProjectionPort saveProductProjectionPort;
+    private final GetProductQueryPort getProductQueryPort;
+    private final SaveProductQueryPort saveProductQueryPort;
     private final ProductEventMapper productEventMapper;
 
     @KafkaListener(
@@ -42,14 +42,14 @@ class ProductCreatedKafkaListener {
         log.info("Received ProductCreatedEvent with key: {}", key);
         log.info("Going to check if product with id: {} already exists in the projection database", key);
         Optional<Product> existingProduct =
-                getProductProjectionPort.getProductByProductId(new ProductId(UUID.fromString(key)));
+                getProductQueryPort.getProductByProductId(new ProductId(UUID.fromString(key)));
         if (existingProduct.isPresent()) {
             log.warn("Product with id: {} already exists in the projection database, skipping processing of this event",
                      key);
             return;
         }
         log.info("Product with id: {} does not exist in the projection database, processing this event", key);
-        saveProductProjectionPort.save(productEventMapper.toProductDomainEntity(payload));
+        saveProductQueryPort.save(productEventMapper.toProductDomainEntity(payload));
     }
 
     @KafkaListener(

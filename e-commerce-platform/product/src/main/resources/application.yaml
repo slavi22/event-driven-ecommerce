@@ -5,6 +5,7 @@ spring:
 kafka:
   topics:
     product-created-topic: product-created-topic
+    product-updated-topic: product-updated-topic
   config:
     producer:
       idempotency-enabled: true
@@ -14,6 +15,7 @@ kafka:
     consumer:
       groups:
         product-created-events-group: product-created-events-group
+        product-updated-events-group: product-updated-events-group
       auto-offset: earliest # Start from the beginning of the topic when there are no committed offsets
       json-deserializer-trusted-packages: com.eventdriven.product.domain.event # Allow deserialization of events from this package
 

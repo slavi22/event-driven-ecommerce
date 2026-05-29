@@ -1,4 +1,4 @@
-package com.eventdriven.product.application.port.out.persistence;
+package com.eventdriven.product.application.port.out.persistence.outbox;
 
 import com.eventdriven.product.application.dto.OutboxEvent;
 

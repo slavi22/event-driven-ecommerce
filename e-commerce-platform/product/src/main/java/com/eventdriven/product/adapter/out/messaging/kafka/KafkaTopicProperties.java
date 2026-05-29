@@ -11,4 +11,5 @@ import org.springframework.stereotype.Component;
 @Setter
 public class KafkaTopicProperties {
     private String productCreatedTopic;
+    private String productUpdatedTopic;
 }

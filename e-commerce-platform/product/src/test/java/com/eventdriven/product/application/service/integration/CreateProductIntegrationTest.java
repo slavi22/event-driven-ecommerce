@@ -1,20 +1,21 @@
-package com.eventdriven.product.application.service;
+package com.eventdriven.product.application.service.integration;
 
 import com.eventdriven.product.adapter.out.persistence.command.postgres.OutboxEventEntity;
 import com.eventdriven.product.adapter.out.persistence.command.postgres.OutboxEventJpaRepository;
 import com.eventdriven.product.adapter.out.persistence.command.postgres.ProductJpaRepository;
 import com.eventdriven.product.application.command.CreateProductCommand;
 import com.eventdriven.product.application.port.in.CreateProductUseCase;
-import com.eventdriven.product.application.port.out.persistence.SaveOutboxEventPort;
+import com.eventdriven.product.application.port.out.persistence.outbox.SaveOutboxEventPort;
+import com.eventdriven.product.config.ProductTestConfiguration;
 import com.eventdriven.product.domain.event.ProductCreatedEventPayload;
 import com.eventdriven.product.domain.valueobject.ProductCategory;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -31,7 +32,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doThrow;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        // neccessary to create the test topic before the application context is fully initialized
+        // otherwise it will use the main KafkaAdmin which creates topics with 3 partitions and 3 replicas
+        classes = ProductTestConfiguration.class)
 @Testcontainers
 @ActiveProfiles("test")
 class CreateProductIntegrationTest {
@@ -73,12 +77,18 @@ class CreateProductIntegrationTest {
         productJpaRepository.deleteAll();
     }
 
+    @BeforeAll
+    static void setupTestTopic() {
+
+    }
+
     @Test
     @DisplayName("Given valid create product request, when create product, then should create product and outbox event")
     void testCreateProduct_withValidRequest_shouldCreateProductAndOutboxEvent() {
         // Arrange
         CreateProductCommand command =
-                new CreateProductCommand("Laptop", "A laptop", new BigDecimal("999.99"), ProductCategory.ELECTRONICS);
+                new CreateProductCommand("Laptop", "A laptop", new BigDecimal("999.99"), ProductCategory.ELECTRONICS,
+                                         10);
 
         // Act
         createProductUseCase.createProduct(command);
@@ -98,7 +108,8 @@ class CreateProductIntegrationTest {
     void testCreateProduct_whenExceptionThrown_shouldRollbackBothWrites() {
         // Arrange
         CreateProductCommand command =
-                new CreateProductCommand("Laptop", "A laptop", new BigDecimal("999.99"), ProductCategory.ELECTRONICS);
+                new CreateProductCommand("Laptop", "A laptop", new BigDecimal("999.99"), ProductCategory.ELECTRONICS,
+                                         10);
         doThrow(new RuntimeException("Outbox write failed")).when(saveOutboxEventPort).save(ArgumentMatchers.any());
 
         // Act & Assert

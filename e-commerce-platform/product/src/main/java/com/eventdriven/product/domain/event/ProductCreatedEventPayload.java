@@ -13,6 +13,7 @@ public record ProductCreatedEventPayload(String productId,
                                          BigDecimal price,
                                          ProductCategory category,
                                          ProductStatus status,
+                                         int initialQuantity,
                                          Instant occurredOn) implements DomainEvent {
 
     public static final String AGGREGATE_TYPE = "Product";

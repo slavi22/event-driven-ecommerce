@@ -1,10 +1,11 @@
-package com.eventdriven.product.application.service;
+package com.eventdriven.product.application.service.unit;
 
 import com.eventdriven.product.application.command.CreateProductCommand;
 import com.eventdriven.product.application.dto.OutboxEvent;
-import com.eventdriven.product.application.mapper.ProductMapper;
-import com.eventdriven.product.application.port.out.persistence.SaveOutboxEventPort;
-import com.eventdriven.product.application.port.out.persistence.SaveProductPort;
+import com.eventdriven.product.application.mapper.ProductApplicationMapper;
+import com.eventdriven.product.application.port.out.persistence.outbox.SaveOutboxEventPort;
+import com.eventdriven.product.application.port.out.persistence.command.SaveProductPort;
+import com.eventdriven.product.application.service.CreateProductService;
 import com.eventdriven.product.domain.entity.Product;
 import com.eventdriven.product.domain.event.ProductCreatedEventPayload;
 import com.eventdriven.product.domain.exception.ProductDomainException;
@@ -31,7 +32,7 @@ class CreateProductServiceTest {
     @Mock
     private SaveOutboxEventPort saveOutboxEventPort;
     @Mock
-    private ProductMapper productMapper ;
+    private ProductApplicationMapper productApplicationMapper;
     @Mock
     private JsonMapper jsonMapper;
 
@@ -44,7 +45,7 @@ class CreateProductServiceTest {
         // Arrange
         CreateProductCommand command =
                 new CreateProductCommand("Product Name", "Product Description", new BigDecimal("9.99"),
-                                         ProductCategory.ELECTRONICS);
+                                         ProductCategory.ELECTRONICS, 10);
 
         // Act
         createProductService.createProduct(command);
@@ -61,7 +62,7 @@ class CreateProductServiceTest {
         // Arrange
         CreateProductCommand command =
                 new CreateProductCommand(null, "Product Description", new BigDecimal("9.99"),
-                                         ProductCategory.ELECTRONICS);
+                                         ProductCategory.ELECTRONICS, 10);
 
         // Act
         assertThrows(ProductDomainException.class, () -> createProductService.createProduct(command));

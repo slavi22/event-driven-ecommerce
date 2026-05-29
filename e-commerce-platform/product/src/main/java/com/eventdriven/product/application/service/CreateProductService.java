@@ -1,12 +1,12 @@
 package com.eventdriven.product.application.service;
 
 import com.eventdriven.product.application.command.CreateProductCommand;
+import com.eventdriven.product.application.dto.CreateProductResult;
 import com.eventdriven.product.application.dto.OutboxEvent;
-import com.eventdriven.product.application.dto.ProductResponse;
-import com.eventdriven.product.application.mapper.ProductMapper;
+import com.eventdriven.product.application.mapper.ProductApplicationMapper;
 import com.eventdriven.product.application.port.in.CreateProductUseCase;
-import com.eventdriven.product.application.port.out.persistence.SaveOutboxEventPort;
-import com.eventdriven.product.application.port.out.persistence.SaveProductPort;
+import com.eventdriven.product.application.port.out.persistence.outbox.SaveOutboxEventPort;
+import com.eventdriven.product.application.port.out.persistence.command.SaveProductPort;
 import com.eventdriven.product.domain.entity.Product;
 import com.eventdriven.product.domain.event.ProductCreatedEventPayload;
 import com.eventdriven.product.domain.valueobject.Money;
@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Instant;
@@ -24,13 +23,13 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class CreateProductService implements CreateProductUseCase {
     private final SaveProductPort saveProductPort;
-    private final ProductMapper productMapper;
+    private final ProductApplicationMapper productApplicationMapper;
     private final SaveOutboxEventPort saveOutboxEventPort;
     private final JsonMapper jsonMapper;
 
     @Override
-    @Transactional // we don't need to specify the transaction manager here since we marked the command as primary bean
-    public ProductResponse createProduct( CreateProductCommand command) {
+    @Transactional // we don't need to specify the transaction manager here since we marked the command transaction manager as primary bean
+    public CreateProductResult createProduct(CreateProductCommand command) {
         log.info("Creating product with name: {}", command.name());
         Product newProduct = Product.create(
                 command.name(),
@@ -52,6 +51,7 @@ public class CreateProductService implements CreateProductUseCase {
                 newProduct.getPrice().getAmount(),
                 newProduct.getCategory(),
                 newProduct.getStatus(),
+                command.initialQuantity(),
                 newProduct.getCreatedAt()
         );
         String jsonPayload = jsonMapper.writeValueAsString(payload);
@@ -63,6 +63,6 @@ public class CreateProductService implements CreateProductUseCase {
         ));
         log.info("Product with name: {} saved to outbox table successfully", command.name());
 
-        return productMapper.toProductResponse(newProduct);
+        return productApplicationMapper.toCreateProductResult(newProduct);
     }
 }

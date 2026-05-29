@@ -2,10 +2,13 @@ package com.eventdriven.product.adapter.in.messaging.kafka;
 
 import com.eventdriven.product.adapter.out.persistence.query.postgres.ProductReadJpaRepository;
 import com.eventdriven.product.application.port.out.persistence.query.SaveProductQueryPort;
+import com.eventdriven.product.application.port.out.persistence.query.UpdateProductQueryPort;
 import com.eventdriven.product.config.ProductTestConfiguration;
 import com.eventdriven.product.domain.entity.Product;
-import com.eventdriven.product.domain.event.ProductCreatedEventPayload;
+import com.eventdriven.product.domain.event.ProductUpdatedEventPayload;
+import com.eventdriven.product.domain.valueobject.Money;
 import com.eventdriven.product.domain.valueobject.ProductCategory;
+import com.eventdriven.product.domain.valueobject.ProductId;
 import com.eventdriven.product.domain.valueobject.ProductStatus;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -49,7 +52,7 @@ import static org.mockito.Mockito.doThrow;
         classes = ProductTestConfiguration.class)
 @Testcontainers
 @ActiveProfiles("test")
-class ProductCreatedKafkaListenerIntegrationTest {
+class ProductUpdatedKafkaListenerIntegrationTest {
 
     @Container
     static PostgreSQLContainer<?> postgreSQLContainer =
@@ -75,11 +78,13 @@ class ProductCreatedKafkaListenerIntegrationTest {
     private JsonMapper jsonMapper;
     @Autowired
     private ProductReadJpaRepository productReadJpaRepository;
-    @Value("${kafka.topics.product-created-topic}")
+    @Autowired
+    private SaveProductQueryPort saveProductQueryPort;
+    @Value("${kafka.topics.product-updated-topic}")
     private String topic;
 
     @MockitoSpyBean
-    private SaveProductQueryPort saveProductQueryPort;
+    private UpdateProductQueryPort updateProductQueryPort;
 
     @BeforeEach
     void clean() {
@@ -87,101 +92,19 @@ class ProductCreatedKafkaListenerIntegrationTest {
     }
 
     @Test
-    @DisplayName("Given a ProductCreatedEvent, when the event is consumed by the Kafka listener, then the projection table should be populated with the new product data")
-    void testProjectionTableForEventualConsistency_whenReceiveProductCreatedEvent_shouldPopulateProjectionTable() {
+    @DisplayName("Given a product exists in the projection, when a ProductUpdatedEvent is received, then the projection should be updated")
+    void testProjectionTable_whenReceiveProductUpdatedEvent_shouldUpdateProjectionTable() {
         // Arrange
-        ProductCreatedEventPayload payload = new ProductCreatedEventPayload(
-                UUID.randomUUID().toString(),
-                "product-name",
-                "product-description",
-                new BigDecimal("10.00"),
-                ProductCategory.ELECTRONICS,
-                ProductStatus.ACTIVE,
-                10,
-                Instant.now()
-        );
+        Product existingProduct = buildProduct();
+        saveProductQueryPort.save(existingProduct);
 
-        // Act
-        kafkaTemplate.send(topic, payload.productId(), jsonMapper.writeValueAsString(payload));
-
-        // Assert
-        await().atMost(10, TimeUnit.SECONDS)
-               .untilAsserted(() -> assertEquals(1, productReadJpaRepository.findAll().size()));
-    }
-
-    @Test
-    @DisplayName("Given a ProductCreatedEvent, when the same event is consumed multiple times by the Kafka listener, then the projection table should not have duplicate entries for the same product")
-    void testProjectionTable_whenDuplicateProductCreatedEvent_shouldNotCreateDuplicateEntryInProjectionTable() {
-        // Arrange
-        ProductCreatedEventPayload payload = new ProductCreatedEventPayload(
-                UUID.randomUUID().toString(),
-                "product-name",
-                "product-description",
-                new BigDecimal("10.00"),
-                ProductCategory.ELECTRONICS,
-                ProductStatus.ACTIVE,
-                10,
-                Instant.now()
-        );
-        int loopCount = 3;
-
-        // Act
-        for (int i = 0; i < loopCount; i++) {
-            kafkaTemplate.send(topic, payload.productId(), jsonMapper.writeValueAsString(payload));
-        }
-
-        // Assert
-        await().atMost(10, TimeUnit.SECONDS)
-               .untilAsserted(() -> assertEquals(1, productReadJpaRepository.findAll().size()));
-    }
-
-    @Test
-    @DisplayName("Given multiple distinct ProductCreatedEvents, when they are consumed by the Kafka listener, then each product should be saved as a separate entry in the projection table")
-    void testProjectionTable_whenMultipleDistinctProductCreatedEvents_shouldSaveEachProductSeparately() {
-        // Arrange
-        ProductCreatedEventPayload firstPayload = new ProductCreatedEventPayload(
-                UUID.randomUUID().toString(),
-                "first-product",
-                "first-product-description",
-                new BigDecimal("10.00"),
-                ProductCategory.ELECTRONICS,
-                ProductStatus.ACTIVE,
-                10,
-                Instant.now()
-        );
-        ProductCreatedEventPayload secondPayload = new ProductCreatedEventPayload(
-                UUID.randomUUID().toString(),
-                "second-product",
-                "second-product-description",
+        ProductUpdatedEventPayload payload = new ProductUpdatedEventPayload(
+                existingProduct.getId().getValue().toString(),
+                "Updated Name", "Updated Description",
                 new BigDecimal("20.00"),
                 ProductCategory.ELECTRONICS,
                 ProductStatus.ACTIVE,
-                10,
-                Instant.now()
-        );
-
-        // Act
-        kafkaTemplate.send(topic, firstPayload.productId(), jsonMapper.writeValueAsString(firstPayload));
-        kafkaTemplate.send(topic, secondPayload.productId(), jsonMapper.writeValueAsString(secondPayload));
-
-        // Assert
-        await().atMost(10, TimeUnit.SECONDS)
-               .untilAsserted(() -> assertEquals(2, productReadJpaRepository.findAll().size()));
-    }
-
-    @Test
-    @DisplayName("Given a ProductCreatedEvent, when the Kafka listener encounters an exception while processing the event, then the message should be sent to the Dead Letter Topic (DLT)")
-    void testKafkaDlt_whenListenerEncountersException_shouldSendMessageToDlt() {
-        // Arrange
-        doThrow(new RuntimeException("Simulated failure")).when(saveProductQueryPort).save(any(Product.class));
-        ProductCreatedEventPayload payload = new ProductCreatedEventPayload(
-                UUID.randomUUID().toString(),
-                "product-name",
-                "product-description",
-                new BigDecimal("10.00"),
-                ProductCategory.ELECTRONICS,
-                ProductStatus.ACTIVE,
-                10,
+                existingProduct.getCreatedAt(),
                 Instant.now()
         );
 
@@ -189,31 +112,92 @@ class ProductCreatedKafkaListenerIntegrationTest {
         kafkaTemplate.send(topic, payload.productId(), jsonMapper.writeValueAsString(payload));
 
         // Assert
-        try (KafkaConsumer<String, ProductCreatedEventPayload> dltConsumer = buildDltConsumer()) {
+        await().atMost(10, TimeUnit.SECONDS)
+               .untilAsserted(() -> {
+                   var entity = productReadJpaRepository.findById(UUID.fromString(payload.productId())).orElseThrow();
+                   assertEquals("Updated Name", entity.getName());
+                   assertEquals("Updated Description", entity.getDescription());
+               });
+    }
+
+    @Test
+    @DisplayName("Given a product does not exist in the projection, when a ProductUpdatedEvent is received, then the event should be skipped")
+    void testProjectionTable_whenProductNotFoundInProjection_shouldSkipEvent() {
+        // Arrange
+        ProductUpdatedEventPayload payload = new ProductUpdatedEventPayload(
+                UUID.randomUUID().toString(),
+                "Updated Name", "Updated Description",
+                new BigDecimal("20.00"),
+                ProductCategory.ELECTRONICS,
+                ProductStatus.ACTIVE,
+                Instant.now(),
+                Instant.now()
+        );
+
+        // Act
+        kafkaTemplate.send(topic, payload.productId(), jsonMapper.writeValueAsString(payload));
+
+        // Assert — wait then confirm nothing was written
+        await().pollDelay(3, TimeUnit.SECONDS)
+               .atMost(5, TimeUnit.SECONDS)
+               .untilAsserted(() -> assertEquals(0, productReadJpaRepository.findAll().size()));
+    }
+
+    @Test
+    @DisplayName("Given a product exists in the projection, when the listener encounters an exception, then the message should be sent to the DLT")
+    void testKafkaDlt_whenListenerEncountersException_shouldSendMessageToDlt() {
+        // Arrange
+        Product existingProduct = buildProduct();
+        saveProductQueryPort.save(existingProduct);
+        doThrow(new RuntimeException("Simulated failure")).when(updateProductQueryPort).update(any(Product.class));
+
+        ProductUpdatedEventPayload payload = new ProductUpdatedEventPayload(
+                existingProduct.getId().getValue().toString(),
+                "Updated Name", "Updated Description",
+                new BigDecimal("20.00"),
+                ProductCategory.ELECTRONICS,
+                ProductStatus.ACTIVE,
+                existingProduct.getCreatedAt(),
+                Instant.now()
+        );
+
+        // Act
+        kafkaTemplate.send(topic, payload.productId(), jsonMapper.writeValueAsString(payload));
+
+        // Assert
+        try (KafkaConsumer<String, ProductUpdatedEventPayload> dltConsumer = buildDltConsumer()) {
             dltConsumer.subscribe(List.of(topic + ".DLT"));
             await().atMost(10, TimeUnit.SECONDS)
                    .untilAsserted(() -> {
-                       ConsumerRecords<String, ProductCreatedEventPayload>
-                               consumerRecords = dltConsumer.poll(Duration.ofMillis(500));
-                       assertFalse(consumerRecords.isEmpty());
+                       ConsumerRecords<String, ProductUpdatedEventPayload>
+                               records = dltConsumer.poll(Duration.ofMillis(500));
+                       assertFalse(records.isEmpty());
 
-                       ConsumerRecord<String, ProductCreatedEventPayload> consumerRecord =
-                               consumerRecords.iterator().next();
-
-                       assertEquals(payload.productId(), consumerRecord.value().productId());
-                       assertEquals(payload.name(), consumerRecord.value().name());
+                       ConsumerRecord<String, ProductUpdatedEventPayload> record = records.iterator().next();
+                       assertEquals(payload.productId(), record.value().productId());
+                       assertEquals(payload.name(), record.value().name());
                    });
         }
     }
 
-    private KafkaConsumer<String, ProductCreatedEventPayload> buildDltConsumer() {
+    private Product buildProduct() {
+        return Product.reconstitute(
+                new ProductId(UUID.randomUUID()),
+                "Original Name", "Original Description",
+                Money.of(new BigDecimal("10.00")),
+                ProductCategory.ELECTRONICS,
+                ProductStatus.ACTIVE,
+                Instant.now(), null);
+    }
+
+    private KafkaConsumer<String, ProductUpdatedEventPayload> buildDltConsumer() {
         return new KafkaConsumer<>(Map.of(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers(),
                 ConsumerConfig.GROUP_ID_CONFIG, "test-" + UUID.randomUUID(),
                 ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName(),
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonDeserializer.class.getName(),
-                JacksonJsonDeserializer.VALUE_DEFAULT_TYPE, ProductCreatedEventPayload.class.getName()
+                JacksonJsonDeserializer.VALUE_DEFAULT_TYPE, ProductUpdatedEventPayload.class.getName()
         ));
     }
 }

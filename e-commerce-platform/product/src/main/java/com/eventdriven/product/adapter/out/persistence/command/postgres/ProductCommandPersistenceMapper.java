@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
-public interface PersistenceMapper {
+public interface ProductCommandPersistenceMapper {
     default Product toProductDomainEntity(ProductEntity productEntity) {
         return Product.reconstitute(
                 new ProductId(productEntity.getId()),
