@@ -1,7 +1,7 @@
 package com.eventdriven.product.application.service.integration;
 
-import com.eventdriven.product.adapter.out.persistence.command.postgres.OutboxEventEntity;
-import com.eventdriven.product.adapter.out.persistence.command.postgres.OutboxEventJpaRepository;
+import com.eventdriven.product.adapter.out.persistence.command.postgres.outbox.OutboxEventEntity;
+import com.eventdriven.product.adapter.out.persistence.command.postgres.outbox.OutboxEventJpaRepository;
 import com.eventdriven.product.adapter.out.persistence.command.postgres.ProductJpaRepository;
 import com.eventdriven.product.application.command.CreateProductCommand;
 import com.eventdriven.product.application.command.UpdateProductCommand;

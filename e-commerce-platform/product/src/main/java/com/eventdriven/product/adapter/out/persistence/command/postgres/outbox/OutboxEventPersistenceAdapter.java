@@ -1,6 +1,6 @@
-package com.eventdriven.product.adapter.out.persistence.command.postgres;
+package com.eventdriven.product.adapter.out.persistence.command.postgres.outbox;
 
-import com.eventdriven.product.application.dto.OutboxEvent;
+import com.eventdriven.product.application.port.out.persistence.outbox.OutboxEvent;
 import com.eventdriven.product.application.port.out.persistence.outbox.SaveOutboxEventPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

@@ -52,7 +52,10 @@ import static org.mockito.Mockito.doThrow;
 class ProductCreatedKafkaListenerIntegrationTest {
 
     @Container
-    static PostgreSQLContainer<?> postgreSQLContainer =
+    static PostgreSQLContainer<?> commandDb =
+            new PostgreSQLContainer<>(DockerImageName.parse("postgres:18.3")).withDatabaseName("product");
+    @Container
+    static PostgreSQLContainer<?> queryDb =
             new PostgreSQLContainer<>(DockerImageName.parse("postgres:18.3")).withDatabaseName("product");
 
     @Container
@@ -60,12 +63,12 @@ class ProductCreatedKafkaListenerIntegrationTest {
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.command.jdbc-url", postgreSQLContainer::getJdbcUrl);
-        registry.add("spring.datasource.command.username", postgreSQLContainer::getUsername);
-        registry.add("spring.datasource.command.password", postgreSQLContainer::getPassword);
-        registry.add("spring.datasource.query.jdbc-url", postgreSQLContainer::getJdbcUrl);
-        registry.add("spring.datasource.query.username", postgreSQLContainer::getUsername);
-        registry.add("spring.datasource.query.password", postgreSQLContainer::getPassword);
+        registry.add("spring.datasource.command.jdbc-url", commandDb::getJdbcUrl);
+        registry.add("spring.datasource.command.username", commandDb::getUsername);
+        registry.add("spring.datasource.command.password", commandDb::getPassword);
+        registry.add("spring.datasource.query.jdbc-url", queryDb::getJdbcUrl);
+        registry.add("spring.datasource.query.username", queryDb::getUsername);
+        registry.add("spring.datasource.query.password", queryDb::getPassword);
         registry.add("spring.kafka.bootstrap-servers", kafkaContainer::getBootstrapServers);
     }
 

@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Log4j2
 @Service
 @RequiredArgsConstructor
-class GetProductQueryQueryService implements GetProductQueryUseCase {
+public class GetProductQueryService implements GetProductQueryUseCase {
     private final GetProductQueryPort getProductQueryPort;
     private final ProductApplicationMapper productApplicationMapper;
 

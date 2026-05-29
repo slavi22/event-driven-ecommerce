@@ -14,7 +14,7 @@ import java.util.List;
 @Log4j2
 @Service
 @RequiredArgsConstructor
-class GetAllProductsQueryService implements GetAllProductsQueryUseCase {
+public class GetAllProductsQueryService implements GetAllProductsQueryUseCase {
 
     private final GetAllProductsQueryPort getAllProductsQueryPort;
     private final ProductApplicationMapper productApplicationMapper;

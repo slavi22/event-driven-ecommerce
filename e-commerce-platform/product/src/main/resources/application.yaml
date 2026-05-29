@@ -19,5 +19,8 @@ kafka:
       auto-offset: earliest # Start from the beginning of the topic when there are no committed offsets
       json-deserializer-trusted-packages: com.eventdriven.product.domain.event # Allow deserialization of events from this package
 
+app:
+  scheduling:
+    enabled: true
 
 

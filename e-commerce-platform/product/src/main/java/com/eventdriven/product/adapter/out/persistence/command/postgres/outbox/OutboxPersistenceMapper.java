@@ -1,6 +1,6 @@
-package com.eventdriven.product.adapter.out.persistence.command.postgres;
+package com.eventdriven.product.adapter.out.persistence.command.postgres.outbox;
 
-import com.eventdriven.product.application.dto.OutboxEvent;
+import com.eventdriven.product.application.port.out.persistence.outbox.OutboxEvent;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 

@@ -1,4 +1,4 @@
-package com.eventdriven.product.application.dto;
+package com.eventdriven.product.application.port.out.persistence.outbox;
 
 import java.time.Instant;
 

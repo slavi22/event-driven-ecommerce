@@ -1,7 +1,7 @@
 package com.eventdriven.product.application.service.unit;
 
 import com.eventdriven.product.application.command.UpdateProductCommand;
-import com.eventdriven.product.application.dto.OutboxEvent;
+import com.eventdriven.product.application.port.out.persistence.outbox.OutboxEvent;
 import com.eventdriven.product.application.exception.ProductNotFoundException;
 import com.eventdriven.product.application.mapper.ProductApplicationMapper;
 import com.eventdriven.product.application.port.out.persistence.command.GetProductCommandPort;

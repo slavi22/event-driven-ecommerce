@@ -1,19 +1,16 @@
 package com.eventdriven.product.adapter.out.messaging.kafka;
 
-import com.eventdriven.product.adapter.out.persistence.command.postgres.OutboxEventEntity;
-import com.eventdriven.product.adapter.out.persistence.command.postgres.OutboxEventJpaRepository;
+import com.eventdriven.product.adapter.out.persistence.command.postgres.outbox.OutboxEventEntity;
+import com.eventdriven.product.adapter.out.persistence.command.postgres.outbox.OutboxEventJpaRepository;
+import com.eventdriven.product.config.ProductTestConfiguration;
 import com.eventdriven.product.domain.event.ProductCreatedEventPayload;
 import com.eventdriven.product.domain.valueobject.ProductCategory;
 import com.eventdriven.product.domain.valueobject.ProductStatus;
-import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,13 +39,17 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        classes = ProductTestConfiguration.class)
 @Testcontainers
 @ActiveProfiles("test")
 class OutboxEventPollerIntegrationTest {
 
     @Container
-    static PostgreSQLContainer<?> postgreSQLContainer =
+    static PostgreSQLContainer<?> commandDb =
+            new PostgreSQLContainer<>(DockerImageName.parse("postgres:18.3")).withDatabaseName("product");
+    @Container
+    static PostgreSQLContainer<?> queryDb =
             new PostgreSQLContainer<>(DockerImageName.parse("postgres:18.3")).withDatabaseName("product");
 
     @Container
@@ -56,12 +57,12 @@ class OutboxEventPollerIntegrationTest {
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.command.jdbc-url", postgreSQLContainer::getJdbcUrl);
-        registry.add("spring.datasource.command.username", postgreSQLContainer::getUsername);
-        registry.add("spring.datasource.command.password", postgreSQLContainer::getPassword);
-        registry.add("spring.datasource.query.jdbc-url", postgreSQLContainer::getJdbcUrl);
-        registry.add("spring.datasource.query.username", postgreSQLContainer::getUsername);
-        registry.add("spring.datasource.query.password", postgreSQLContainer::getPassword);
+        registry.add("spring.datasource.command.jdbc-url", commandDb::getJdbcUrl);
+        registry.add("spring.datasource.command.username", commandDb::getUsername);
+        registry.add("spring.datasource.command.password", commandDb::getPassword);
+        registry.add("spring.datasource.query.jdbc-url", queryDb::getJdbcUrl);
+        registry.add("spring.datasource.query.username", queryDb::getUsername);
+        registry.add("spring.datasource.query.password", queryDb::getPassword);
         registry.add("spring.kafka.bootstrap-servers", kafkaContainer::getBootstrapServers);
     }
 
@@ -77,18 +78,6 @@ class OutboxEventPollerIntegrationTest {
     @BeforeEach
     void clean() {
         outboxEventJpaRepository.deleteAll();
-    }
-
-    @BeforeAll
-    static void createIntegrationTestTopic() {
-        // we need to create the topic manually to essentially override the default topic config we have in place, which is 3 partitions and replication factor of 3
-        // solution found from here using Kafka admin client => https://stackoverflow.com/a/59191509
-        List<NewTopic> topics = List.of(new NewTopic("product-created-topic", 1, (short) 1));
-        Map<String, Object> configMap =
-                Map.of(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers());
-        try (AdminClient adminClient = AdminClient.create(configMap)) {
-            adminClient.createTopics(topics);
-        }
     }
 
     @Test

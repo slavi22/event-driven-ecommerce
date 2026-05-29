@@ -1,4 +1,4 @@
-package com.eventdriven.product.adapter.in.messaging.kafka;
+package com.eventdriven.product.adapter.in.messaging.kafka.config;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;

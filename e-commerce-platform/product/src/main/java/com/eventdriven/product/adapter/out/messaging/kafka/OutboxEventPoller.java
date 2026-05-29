@@ -1,7 +1,8 @@
 package com.eventdriven.product.adapter.out.messaging.kafka;
 
-import com.eventdriven.product.adapter.out.persistence.command.postgres.OutboxEventEntity;
-import com.eventdriven.product.adapter.out.persistence.command.postgres.OutboxEventJpaRepository;
+import com.eventdriven.product.adapter.out.messaging.kafka.config.KafkaTopicProperties;
+import com.eventdriven.product.adapter.out.persistence.command.postgres.outbox.OutboxEventEntity;
+import com.eventdriven.product.adapter.out.persistence.command.postgres.outbox.OutboxEventJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.kafka.core.KafkaTemplate;

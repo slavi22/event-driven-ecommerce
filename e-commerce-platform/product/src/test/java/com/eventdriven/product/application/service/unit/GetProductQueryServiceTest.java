@@ -5,7 +5,7 @@ import com.eventdriven.product.application.exception.ProductNotFoundException;
 import com.eventdriven.product.application.mapper.ProductApplicationMapper;
 import com.eventdriven.product.application.port.out.persistence.query.GetProductQueryPort;
 import com.eventdriven.product.application.query.GetProductQuery;
-import com.eventdriven.product.application.service.GetProductQueryQueryService;
+import com.eventdriven.product.application.service.GetProductQueryService;
 import com.eventdriven.product.domain.entity.Product;
 import com.eventdriven.product.domain.valueobject.Money;
 import com.eventdriven.product.domain.valueobject.ProductCategory;
@@ -37,7 +37,7 @@ class GetProductQueryServiceTest {
     private ProductApplicationMapper productApplicationMapper;
 
     @InjectMocks
-    private GetProductQueryQueryService getProductQueryService;
+    private GetProductQueryService getProductQueryService;
 
     @Test
     @DisplayName("Getting a product with existing product should return product response")
