@@ -5,11 +5,11 @@ import com.eventdriven.product.application.port.out.persistence.query.SaveProduc
 import com.eventdriven.product.application.port.out.persistence.query.UpdateProductQueryPort;
 import com.eventdriven.product.config.ProductTestConfiguration;
 import com.eventdriven.product.domain.entity.Product;
-import com.eventdriven.product.domain.event.ProductUpdatedEventPayload;
+import com.eventdriven.contracts.product.event.ProductUpdatedEventPayload;
+import com.eventdriven.contracts.product.enums.ProductCategory;
+import com.eventdriven.contracts.product.enums.ProductStatus;
 import com.eventdriven.product.domain.valueobject.Money;
-import com.eventdriven.product.domain.valueobject.ProductCategory;
 import com.eventdriven.product.domain.valueobject.ProductId;
-import com.eventdriven.product.domain.valueobject.ProductStatus;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;

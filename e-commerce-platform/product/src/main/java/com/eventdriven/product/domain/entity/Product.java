@@ -2,9 +2,9 @@ package com.eventdriven.product.domain.entity;
 
 import com.eventdriven.product.domain.exception.ProductDomainException;
 import com.eventdriven.product.domain.valueobject.Money;
-import com.eventdriven.product.domain.valueobject.ProductCategory;
+import com.eventdriven.contracts.product.enums.ProductCategory;
+import com.eventdriven.contracts.product.enums.ProductStatus;
 import com.eventdriven.product.domain.valueobject.ProductId;
-import com.eventdriven.product.domain.valueobject.ProductStatus;
 import domain.entity.AggregateRoot;
 
 import java.time.Instant;

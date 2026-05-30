@@ -1,7 +1,7 @@
 package com.eventdriven.product.application.dto;
 
-import com.eventdriven.product.domain.valueobject.ProductCategory;
-import com.eventdriven.product.domain.valueobject.ProductStatus;
+import com.eventdriven.contracts.product.enums.ProductCategory;
+import com.eventdriven.contracts.product.enums.ProductStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;

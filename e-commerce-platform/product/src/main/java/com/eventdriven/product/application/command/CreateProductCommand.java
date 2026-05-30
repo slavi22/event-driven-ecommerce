@@ -1,6 +1,6 @@
 package com.eventdriven.product.application.command;
 
-import com.eventdriven.product.domain.valueobject.ProductCategory;
+import com.eventdriven.contracts.product.enums.ProductCategory;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

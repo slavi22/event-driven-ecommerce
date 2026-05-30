@@ -7,7 +7,7 @@ import com.eventdriven.product.application.port.out.persistence.command.SaveProd
 import com.eventdriven.product.application.port.out.persistence.command.UpdateProductPort;
 import com.eventdriven.product.domain.entity.Product;
 import com.eventdriven.product.domain.valueobject.ProductId;
-import com.eventdriven.product.domain.valueobject.ProductStatus;
+import com.eventdriven.contracts.product.enums.ProductStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

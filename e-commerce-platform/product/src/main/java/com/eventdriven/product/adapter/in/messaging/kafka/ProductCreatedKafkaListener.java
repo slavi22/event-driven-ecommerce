@@ -3,7 +3,7 @@ package com.eventdriven.product.adapter.in.messaging.kafka;
 import com.eventdriven.product.application.port.out.persistence.query.GetProductQueryPort;
 import com.eventdriven.product.application.port.out.persistence.query.SaveProductQueryPort;
 import com.eventdriven.product.domain.entity.Product;
-import com.eventdriven.product.domain.event.ProductCreatedEventPayload;
+import com.eventdriven.contracts.product.event.ProductCreatedEventPayload;
 import com.eventdriven.product.domain.valueobject.ProductId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -35,7 +35,7 @@ class ProductCreatedKafkaListener {
             * => https://stackoverflow.com/a/67919991
             * */
             properties = {
-                    "spring.json.value.default.type=com.eventdriven.product.domain.event.ProductCreatedEventPayload"}
+                    "spring.json.value.default.type=com.eventdriven.contracts.product.event.ProductCreatedEventPayload"}
     )
     public void onProductCreated(@Payload ProductCreatedEventPayload payload,
                                  @Header(KafkaHeaders.RECEIVED_KEY) String key) {
@@ -56,7 +56,7 @@ class ProductCreatedKafkaListener {
             topics = "${kafka.topics.product-created-topic}.DLT",
             groupId = "${kafka.config.consumer.groups.product-created-events-group}-dlt",
             properties = {
-                    "spring.json.value.default.type=com.eventdriven.product.domain.event.ProductCreatedEventPayload"}
+                    "spring.json.value.default.type=com.eventdriven.contracts.product.event.ProductCreatedEventPayload"}
     )
     public void onProductCreatedDlt(@Payload ProductCreatedEventPayload payload,
                                     @Header(KafkaHeaders.DLT_EXCEPTION_MESSAGE) String exceptionMessage,

@@ -6,8 +6,8 @@ import com.eventdriven.product.application.port.out.persistence.query.GetAllProd
 import com.eventdriven.product.application.service.query.GetAllProductsQueryService;
 import com.eventdriven.product.domain.entity.Product;
 import com.eventdriven.product.domain.valueobject.Money;
-import com.eventdriven.product.domain.valueobject.ProductCategory;
-import com.eventdriven.product.domain.valueobject.ProductStatus;
+import com.eventdriven.contracts.product.enums.ProductCategory;
+import com.eventdriven.contracts.product.enums.ProductStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

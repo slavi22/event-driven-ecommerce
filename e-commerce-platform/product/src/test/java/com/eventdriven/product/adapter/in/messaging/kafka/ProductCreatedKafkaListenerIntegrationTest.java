@@ -4,9 +4,9 @@ import com.eventdriven.product.adapter.out.persistence.query.postgres.ProductRea
 import com.eventdriven.product.application.port.out.persistence.query.SaveProductQueryPort;
 import com.eventdriven.product.config.ProductTestConfiguration;
 import com.eventdriven.product.domain.entity.Product;
-import com.eventdriven.product.domain.event.ProductCreatedEventPayload;
-import com.eventdriven.product.domain.valueobject.ProductCategory;
-import com.eventdriven.product.domain.valueobject.ProductStatus;
+import com.eventdriven.contracts.product.event.ProductCreatedEventPayload;
+import com.eventdriven.contracts.product.enums.ProductCategory;
+import com.eventdriven.contracts.product.enums.ProductStatus;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;

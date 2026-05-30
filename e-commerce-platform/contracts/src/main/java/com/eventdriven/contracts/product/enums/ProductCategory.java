@@ -1,4 +1,4 @@
-package com.eventdriven.product.domain.valueobject;
+package com.eventdriven.contracts.product.enums;
 
 public enum ProductCategory {
     ELECTRONICS,

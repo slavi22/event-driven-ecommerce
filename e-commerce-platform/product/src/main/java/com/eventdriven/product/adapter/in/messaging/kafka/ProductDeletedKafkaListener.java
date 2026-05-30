@@ -3,7 +3,7 @@ package com.eventdriven.product.adapter.in.messaging.kafka;
 import com.eventdriven.product.application.port.out.persistence.query.DeleteProductQueryPort;
 import com.eventdriven.product.application.port.out.persistence.query.GetProductQueryPort;
 import com.eventdriven.product.domain.entity.Product;
-import com.eventdriven.product.domain.event.ProductDeletedEventPayload;
+import com.eventdriven.contracts.product.event.ProductDeletedEventPayload;
 import com.eventdriven.product.domain.valueobject.ProductId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -26,7 +26,7 @@ class ProductDeletedKafkaListener {
 
     @KafkaListener(topics = "${kafka.topics.product-deleted-topic}",
             groupId = "${kafka.config.consumer.groups.product-deleted-events-group}",
-            properties = "spring.json.value.default.type=com.eventdriven.product.domain.event.ProductDeletedEventPayload")
+            properties = "spring.json.value.default.type=com.eventdriven.contracts.product.event.ProductDeletedEventPayload")
     void onProductDeleted(@Payload ProductDeletedEventPayload payload, @Header(KafkaHeaders.RECEIVED_KEY) String key) {
         log.info("Received ProductDeletedEvent with key: {}", key);
         log.info("Going to delete (mark as inactive) product with id: {} from the projection database", key);
@@ -42,7 +42,7 @@ class ProductDeletedKafkaListener {
 
     @KafkaListener(topics = "${kafka.topics.product-deleted-topic}.DLT",
     groupId = "${kafka.config.consumer.groups.product-deleted-events-group}-dlt",
-            properties = "spring.json.value.default.type=com.eventdriven.product.domain.event.ProductDeletedEventPayload")
+            properties = "spring.json.value.default.type=com.eventdriven.contracts.product.event.ProductDeletedEventPayload")
     void onProductDeletedDlt(@Payload ProductDeletedEventPayload payload,
                              @Header(KafkaHeaders.DLT_EXCEPTION_MESSAGE) String exceptionMessage,
                              @Header(KafkaHeaders.DLT_EXCEPTION_FQCN) String exceptionClass,

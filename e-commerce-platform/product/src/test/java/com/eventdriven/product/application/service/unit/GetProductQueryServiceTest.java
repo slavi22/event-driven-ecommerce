@@ -1,6 +1,5 @@
 package com.eventdriven.product.application.service.unit;
 
-import com.eventdriven.product.application.dto.CreateProductResult;
 import com.eventdriven.product.application.dto.GetProductResult;
 import com.eventdriven.product.application.exception.ProductNotFoundException;
 import com.eventdriven.product.application.mapper.ProductApplicationMapper;
@@ -9,9 +8,9 @@ import com.eventdriven.product.application.query.GetProductQuery;
 import com.eventdriven.product.application.service.query.GetProductQueryService;
 import com.eventdriven.product.domain.entity.Product;
 import com.eventdriven.product.domain.valueobject.Money;
-import com.eventdriven.product.domain.valueobject.ProductCategory;
+import com.eventdriven.contracts.product.enums.ProductCategory;
+import com.eventdriven.contracts.product.enums.ProductStatus;
 import com.eventdriven.product.domain.valueobject.ProductId;
-import com.eventdriven.product.domain.valueobject.ProductStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,7 +1,7 @@
-package com.eventdriven.product.domain.event;
+package com.eventdriven.contracts.product.event;
 
-import com.eventdriven.product.domain.valueobject.ProductCategory;
-import com.eventdriven.product.domain.valueobject.ProductStatus;
+import com.eventdriven.contracts.product.enums.ProductCategory;
+import com.eventdriven.contracts.product.enums.ProductStatus;
 import domain.event.DomainEvent;
 
 import java.math.BigDecimal;

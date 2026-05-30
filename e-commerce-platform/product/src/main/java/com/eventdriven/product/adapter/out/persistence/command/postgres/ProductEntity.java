@@ -1,7 +1,7 @@
 package com.eventdriven.product.adapter.out.persistence.command.postgres;
 
-import com.eventdriven.product.domain.valueobject.ProductCategory;
-import com.eventdriven.product.domain.valueobject.ProductStatus;
+import com.eventdriven.contracts.product.enums.ProductCategory;
+import com.eventdriven.contracts.product.enums.ProductStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

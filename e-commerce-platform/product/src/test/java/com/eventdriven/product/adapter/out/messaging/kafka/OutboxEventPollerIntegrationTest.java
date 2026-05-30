@@ -3,9 +3,9 @@ package com.eventdriven.product.adapter.out.messaging.kafka;
 import com.eventdriven.product.adapter.out.persistence.command.postgres.outbox.OutboxEventEntity;
 import com.eventdriven.product.adapter.out.persistence.command.postgres.outbox.OutboxEventJpaRepository;
 import com.eventdriven.product.config.ProductTestConfiguration;
-import com.eventdriven.product.domain.event.ProductCreatedEventPayload;
-import com.eventdriven.product.domain.valueobject.ProductCategory;
-import com.eventdriven.product.domain.valueobject.ProductStatus;
+import com.eventdriven.contracts.product.event.ProductCreatedEventPayload;
+import com.eventdriven.contracts.product.enums.ProductCategory;
+import com.eventdriven.contracts.product.enums.ProductStatus;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -146,7 +146,7 @@ class OutboxEventPollerIntegrationTest {
                 ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName(),
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonDeserializer.class.getName(),
-                // essentially the same as => properties = {"spring.json.value.default.type=com.eventdriven.product.domain.event.ProductCreatedEventPayload"} on the real consumer
+                // essentially the same as => properties = {"spring.json.value.default.type=product.event.ProductCreatedEventPayload"} on the real consumer
                 JacksonJsonDeserializer.VALUE_DEFAULT_TYPE, ProductCreatedEventPayload.class.getName()
         ));
     }

@@ -1,14 +1,13 @@
 package com.eventdriven.product.adapter.in.messaging.kafka;
 
 import com.eventdriven.product.domain.entity.Product;
-import com.eventdriven.product.domain.event.ProductCreatedEventPayload;
-import com.eventdriven.product.domain.event.ProductUpdatedEventPayload;
+import com.eventdriven.contracts.product.event.ProductCreatedEventPayload;
+import com.eventdriven.contracts.product.event.ProductUpdatedEventPayload;
 import com.eventdriven.product.domain.valueobject.Money;
 import com.eventdriven.product.domain.valueobject.ProductId;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)

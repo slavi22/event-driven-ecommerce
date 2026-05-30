@@ -7,7 +7,7 @@ import com.eventdriven.product.application.port.out.persistence.command.GetProdu
 import com.eventdriven.product.application.port.out.persistence.outbox.OutboxEvent;
 import com.eventdriven.product.application.port.out.persistence.outbox.SaveOutboxEventPort;
 import com.eventdriven.product.domain.entity.Product;
-import com.eventdriven.product.domain.event.ProductDeletedEventPayload;
+import com.eventdriven.contracts.product.event.ProductDeletedEventPayload;
 import com.eventdriven.product.domain.valueobject.ProductId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
