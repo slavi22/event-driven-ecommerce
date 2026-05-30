@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    command:
+      # TODO: why i need jdbc-url instead of url => https://stackoverflow.com/a/51950877;
+      jdbc-url: jdbc:postgresql://localhost:5432/command
+      username: ${POSTGRES_COMMAND_USER}
+      password: ${POSTGRES_COMMAND_PASSWORD}
+      driver-class-name: org.postgresql.Driver
+      liquibase:
+        change-log: classpath:db/db.command.changelog-master.yaml
+    query:
+      jdbc-url: jdbc:postgresql://localhost:5433/query
+      username: ${POSTGRES_QUERY_USER}
+      password: ${POSTGRES_QUERY_PASSWORD}
+      driver-class-name: org.postgresql.Driver
+      liquibase:
+        change-log: classpath:db/db.query.changelog-master.yaml
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+  kafka:
+    bootstrap-servers: localhost:9094
+
+app:
+  scheduling:
+    product: 10000

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- We need this log4j2 config, due to an issue with kafka's test library showing an error related to log4j's log Level being set to an incorrect value - FALSE, which apparently cant be parsed -->
+<!-- Config filled from here => https://logging.apache.org/log4j/2.3.x/manual/configuration.html#:~:text=As%20was%20described%20previously%2C%20Log4j%20will%20first%20attempt%20to%20configure%20itself%20from%20configuration%20files.%20A%20configuration%20equivalent%20to%20the%20default%20would%20look%20like%3A -->
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="error">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>
