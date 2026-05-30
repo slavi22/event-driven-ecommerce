@@ -1,10 +1,10 @@
-package com.eventdriven.product.application.service;
+package com.eventdriven.product.application.service.command;
 
 import com.eventdriven.product.application.command.CreateProductCommand;
 import com.eventdriven.product.application.dto.CreateProductResult;
 import com.eventdriven.product.application.port.out.persistence.outbox.OutboxEvent;
 import com.eventdriven.product.application.mapper.ProductApplicationMapper;
-import com.eventdriven.product.application.port.in.CreateProductUseCase;
+import com.eventdriven.product.application.port.in.command.CreateProductUseCase;
 import com.eventdriven.product.application.port.out.persistence.outbox.SaveOutboxEventPort;
 import com.eventdriven.product.application.port.out.persistence.command.SaveProductPort;
 import com.eventdriven.product.domain.entity.Product;

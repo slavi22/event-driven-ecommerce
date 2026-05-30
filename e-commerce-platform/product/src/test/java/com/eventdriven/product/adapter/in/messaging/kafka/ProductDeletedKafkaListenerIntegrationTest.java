@@ -1,11 +1,11 @@
 package com.eventdriven.product.adapter.in.messaging.kafka;
 
 import com.eventdriven.product.adapter.out.persistence.query.postgres.ProductReadJpaRepository;
+import com.eventdriven.product.application.port.out.persistence.query.DeleteProductQueryPort;
 import com.eventdriven.product.application.port.out.persistence.query.SaveProductQueryPort;
-import com.eventdriven.product.application.port.out.persistence.query.UpdateProductQueryPort;
 import com.eventdriven.product.config.ProductTestConfiguration;
 import com.eventdriven.product.domain.entity.Product;
-import com.eventdriven.product.domain.event.ProductUpdatedEventPayload;
+import com.eventdriven.product.domain.event.ProductDeletedEventPayload;
 import com.eventdriven.product.domain.valueobject.Money;
 import com.eventdriven.product.domain.valueobject.ProductCategory;
 import com.eventdriven.product.domain.valueobject.ProductId;
@@ -53,7 +53,7 @@ import static org.mockito.Mockito.doThrow;
         classes = ProductTestConfiguration.class)
 @Testcontainers
 @ActiveProfiles("test")
-class ProductUpdatedKafkaListenerIntegrationTest {
+class ProductDeletedKafkaListenerIntegrationTest {
 
     @Container
     static PostgreSQLContainer<?> commandDb =
@@ -84,11 +84,11 @@ class ProductUpdatedKafkaListenerIntegrationTest {
     private ProductReadJpaRepository productReadJpaRepository;
     @Autowired
     private SaveProductQueryPort saveProductQueryPort;
-    @Value("${kafka.topics.product-updated-topic}")
+    @Value("${kafka.topics.product-deleted-topic}")
     private String topic;
 
     @MockitoSpyBean
-    private UpdateProductQueryPort updateProductQueryPort;
+    private DeleteProductQueryPort deleteProductQueryPort;
 
     @BeforeEach
     void clean() {
@@ -96,18 +96,19 @@ class ProductUpdatedKafkaListenerIntegrationTest {
     }
 
     @Test
-    @DisplayName("Given a product exists in the projection, when a ProductUpdatedEvent is received, then the projection should be updated")
-    void testProjectionTable_whenReceiveProductUpdatedEvent_shouldUpdateProjectionTable() {
+    @DisplayName("Given a product exists in the projection, when a ProductDeletedEvent is received, then the projection should be marked as inactive")
+    void testProjectionTable_whenReceiveProductDeletedEvent_shouldMarkProductAsInactiveInProjection() {
         // Arrange
         Product existingProduct = buildProduct();
         saveProductQueryPort.save(existingProduct);
 
-        ProductUpdatedEventPayload payload = new ProductUpdatedEventPayload(
+        ProductDeletedEventPayload payload = new ProductDeletedEventPayload(
                 existingProduct.getId().getValue().toString(),
-                "Updated Name", "Updated Description",
-                new BigDecimal("20.00"),
-                ProductCategory.ELECTRONICS,
-                ProductStatus.ACTIVE,
+                existingProduct.getName(),
+                existingProduct.getDescription(),
+                existingProduct.getPrice().getAmount(),
+                existingProduct.getCategory(),
+                ProductStatus.INACTIVE,
                 existingProduct.getCreatedAt(),
                 Instant.now()
         );
@@ -119,21 +120,22 @@ class ProductUpdatedKafkaListenerIntegrationTest {
         await().atMost(10, TimeUnit.SECONDS)
                .untilAsserted(() -> {
                    var entity = productReadJpaRepository.findById(UUID.fromString(payload.productId())).orElseThrow();
-                   assertEquals("Updated Name", entity.getName());
-                   assertEquals("Updated Description", entity.getDescription());
+                   assertEquals(ProductStatus.INACTIVE, entity.getStatus());
                });
     }
 
     @Test
-    @DisplayName("Given a product does not exist in the projection, when a ProductUpdatedEvent is received, then the event should be skipped")
+    @DisplayName("Given a product does not exist in the projection, when a ProductDeletedEvent is received, then the event should be skipped")
     void testProjectionTable_whenProductNotFoundInProjection_shouldSkipEvent() {
         // Arrange
-        ProductUpdatedEventPayload payload = new ProductUpdatedEventPayload(
-                UUID.randomUUID().toString(),
-                "Updated Name", "Updated Description",
-                new BigDecimal("20.00"),
+        String randomProductId = UUID.randomUUID().toString();
+        ProductDeletedEventPayload payload = new ProductDeletedEventPayload(
+                randomProductId,
+                "Some Product",
+                "Some description",
+                new BigDecimal("9.99"),
                 ProductCategory.ELECTRONICS,
-                ProductStatus.ACTIVE,
+                ProductStatus.INACTIVE,
                 Instant.now(),
                 Instant.now()
         );
@@ -141,7 +143,7 @@ class ProductUpdatedKafkaListenerIntegrationTest {
         // Act
         kafkaTemplate.send(topic, payload.productId(), jsonMapper.writeValueAsString(payload));
 
-        // Assert — wait then confirm nothing was written
+        // Assert
         await().pollDelay(3, TimeUnit.SECONDS)
                .atMost(5, TimeUnit.SECONDS)
                .untilAsserted(() -> assertEquals(0, productReadJpaRepository.findAll().size()));
@@ -153,14 +155,15 @@ class ProductUpdatedKafkaListenerIntegrationTest {
         // Arrange
         Product existingProduct = buildProduct();
         saveProductQueryPort.save(existingProduct);
-        doThrow(new RuntimeException("Simulated failure")).when(updateProductQueryPort).update(any(Product.class));
+        doThrow(new RuntimeException("Simulated failure")).when(deleteProductQueryPort).deleteProductById(any(ProductId.class));
 
-        ProductUpdatedEventPayload payload = new ProductUpdatedEventPayload(
+        ProductDeletedEventPayload payload = new ProductDeletedEventPayload(
                 existingProduct.getId().getValue().toString(),
-                "Updated Name", "Updated Description",
-                new BigDecimal("20.00"),
-                ProductCategory.ELECTRONICS,
-                ProductStatus.ACTIVE,
+                existingProduct.getName(),
+                existingProduct.getDescription(),
+                existingProduct.getPrice().getAmount(),
+                existingProduct.getCategory(),
+                ProductStatus.INACTIVE,
                 existingProduct.getCreatedAt(),
                 Instant.now()
         );
@@ -169,15 +172,15 @@ class ProductUpdatedKafkaListenerIntegrationTest {
         kafkaTemplate.send(topic, payload.productId(), jsonMapper.writeValueAsString(payload));
 
         // Assert
-        try (KafkaConsumer<String, ProductUpdatedEventPayload> dltConsumer = buildDltConsumer()) {
+        try (KafkaConsumer<String, ProductDeletedEventPayload> dltConsumer = buildDltConsumer()) {
             dltConsumer.subscribe(List.of(topic + DLT.getValue()));
             await().atMost(10, TimeUnit.SECONDS)
                    .untilAsserted(() -> {
-                       ConsumerRecords<String, ProductUpdatedEventPayload>
+                       ConsumerRecords<String, ProductDeletedEventPayload>
                                records = dltConsumer.poll(Duration.ofMillis(500));
                        assertFalse(records.isEmpty());
 
-                       ConsumerRecord<String, ProductUpdatedEventPayload> consumerRecord = records.iterator().next();
+                       ConsumerRecord<String, ProductDeletedEventPayload> consumerRecord = records.iterator().next();
                        assertEquals(payload.productId(), consumerRecord.value().productId());
                        assertEquals(payload.name(), consumerRecord.value().name());
                    });
@@ -194,14 +197,14 @@ class ProductUpdatedKafkaListenerIntegrationTest {
                 Instant.now(), null);
     }
 
-    private KafkaConsumer<String, ProductUpdatedEventPayload> buildDltConsumer() {
+    private KafkaConsumer<String, ProductDeletedEventPayload> buildDltConsumer() {
         return new KafkaConsumer<>(Map.of(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers(),
                 ConsumerConfig.GROUP_ID_CONFIG, "test-" + UUID.randomUUID(),
                 ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName(),
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonDeserializer.class.getName(),
-                JacksonJsonDeserializer.VALUE_DEFAULT_TYPE, ProductUpdatedEventPayload.class.getName()
+                JacksonJsonDeserializer.VALUE_DEFAULT_TYPE, ProductDeletedEventPayload.class.getName()
         ));
     }
 }

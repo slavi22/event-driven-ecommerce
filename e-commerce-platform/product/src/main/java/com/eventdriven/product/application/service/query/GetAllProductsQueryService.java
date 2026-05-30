@@ -1,8 +1,8 @@
-package com.eventdriven.product.application.service;
+package com.eventdriven.product.application.service.query;
 
-import com.eventdriven.product.application.dto.CreateProductResult;
+import com.eventdriven.product.application.dto.GetProductResult;
 import com.eventdriven.product.application.mapper.ProductApplicationMapper;
-import com.eventdriven.product.application.port.in.GetAllProductsQueryUseCase;
+import com.eventdriven.product.application.port.in.query.GetAllProductsQueryUseCase;
 import com.eventdriven.product.application.port.out.persistence.query.GetAllProductsQueryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -21,7 +21,7 @@ public class GetAllProductsQueryService implements GetAllProductsQueryUseCase {
 
     @Override
     @Transactional(readOnly = true, transactionManager = "queryTransactionManager")
-    public List<CreateProductResult> getAllProducts() {
-        return productApplicationMapper.toCreateProductResultList(getAllProductsQueryPort.getAllProducts());
+    public List<GetProductResult> getAllProducts() {
+        return productApplicationMapper.toGetProductResultList(getAllProductsQueryPort.getAllProducts());
     }
 }

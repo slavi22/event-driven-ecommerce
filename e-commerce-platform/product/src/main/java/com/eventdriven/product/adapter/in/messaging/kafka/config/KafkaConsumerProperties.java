@@ -20,5 +20,6 @@ class KafkaConsumerProperties {
     public static class Groups {
         private String productCreatedEventsGroup;
         private String productUpdatedEventsGroup;
+        private String productDeletedEventsGroup;
     }
 }

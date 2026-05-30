@@ -7,7 +7,7 @@ import com.eventdriven.product.application.mapper.ProductApplicationMapper;
 import com.eventdriven.product.application.port.out.persistence.command.GetProductCommandPort;
 import com.eventdriven.product.application.port.out.persistence.outbox.SaveOutboxEventPort;
 import com.eventdriven.product.application.port.out.persistence.command.UpdateProductPort;
-import com.eventdriven.product.application.service.UpdateProductService;
+import com.eventdriven.product.application.service.command.UpdateProductService;
 import com.eventdriven.product.domain.entity.Product;
 import com.eventdriven.product.domain.event.ProductUpdatedEventPayload;
 import com.eventdriven.product.domain.exception.ProductDomainException;

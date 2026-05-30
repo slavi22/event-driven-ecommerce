@@ -1,11 +1,12 @@
 package com.eventdriven.product.application.service.unit;
 
 import com.eventdriven.product.application.dto.CreateProductResult;
+import com.eventdriven.product.application.dto.GetProductResult;
 import com.eventdriven.product.application.exception.ProductNotFoundException;
 import com.eventdriven.product.application.mapper.ProductApplicationMapper;
 import com.eventdriven.product.application.port.out.persistence.query.GetProductQueryPort;
 import com.eventdriven.product.application.query.GetProductQuery;
-import com.eventdriven.product.application.service.GetProductQueryService;
+import com.eventdriven.product.application.service.query.GetProductQueryService;
 import com.eventdriven.product.domain.entity.Product;
 import com.eventdriven.product.domain.valueobject.Money;
 import com.eventdriven.product.domain.valueobject.ProductCategory;
@@ -46,20 +47,22 @@ class GetProductQueryServiceTest {
         UUID productId = UUID.randomUUID();
         Product product = Product.create("Product Name", "Product Description",
                                          Money.of(new BigDecimal("9.99")), ProductCategory.ELECTRONICS);
-        CreateProductResult expectedResponse = new CreateProductResult(
-                "Product Name", "Product Description",
-                new BigDecimal("9.99"), ProductCategory.ELECTRONICS, ProductStatus.ACTIVE, product.getCreatedAt());
+        GetProductResult expectedResponse = new GetProductResult(product.getId().getValue().toString(),
+                                                                 "Product Name", "Product Description",
+                                                                 new BigDecimal("9.99"), ProductCategory.ELECTRONICS,
+                                                                 ProductStatus.ACTIVE, product.getCreatedAt(),
+                                                                 product.getUpdatedAt());
 
         when(getProductQueryPort.getProductByProductId(any(ProductId.class))).thenReturn(Optional.of(product));
-        when(productApplicationMapper.toCreateProductResult(any(Product.class))).thenReturn(expectedResponse);
+        when(productApplicationMapper.toGetProductResult(any(Product.class))).thenReturn(expectedResponse);
 
         // Act
-        CreateProductResult result = getProductQueryService.getProductByProductId(new GetProductQuery(productId));
+        GetProductResult result = getProductQueryService.getProductByProductId(new GetProductQuery(productId));
 
         // Assert
         assertEquals(expectedResponse, result);
         verify(getProductQueryPort).getProductByProductId(any(ProductId.class));
-        verify(productApplicationMapper).toCreateProductResult(any(Product.class));
+        verify(productApplicationMapper).toGetProductResult(any(Product.class));
     }
 
     @Test

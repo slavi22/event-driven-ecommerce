@@ -1,8 +1,8 @@
 package com.eventdriven.product.adapter.in.web;
 
-import com.eventdriven.product.application.dto.CreateProductResult;
-import com.eventdriven.product.application.port.in.GetAllProductsQueryUseCase;
-import com.eventdriven.product.application.port.in.GetProductQueryUseCase;
+import com.eventdriven.product.adapter.in.web.dto.response.GetProductResponse;
+import com.eventdriven.product.application.port.in.query.GetAllProductsQueryUseCase;
+import com.eventdriven.product.application.port.in.query.GetProductQueryUseCase;
 import com.eventdriven.product.application.query.GetProductQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,17 +24,17 @@ class ProductQueryController {
 
     private final GetAllProductsQueryUseCase getAllProductsQueryUseCase;
     private final GetProductQueryUseCase getProductQueryUseCase;
+    private final ProductWebMapper productWebMapper;
 
     @GetMapping
-    public ResponseEntity<List<CreateProductResult>> getAllProducts() {
-        return ResponseEntity.ok(getAllProductsQueryUseCase.getAllProducts());
+    public ResponseEntity<List<GetProductResponse>> getAllProducts() {
+        return ResponseEntity.ok(productWebMapper.toGetProductResponseList(getAllProductsQueryUseCase.getAllProducts()));
     }
 
     @GetMapping("/{productId}")
-    public ResponseEntity<CreateProductResult> getProductById(
-            @PathVariable @org.hibernate.validator.constraints.UUID String productId) {
-        CreateProductResult response =
-                getProductQueryUseCase.getProductByProductId(new GetProductQuery(UUID.fromString(productId)));
-        return ResponseEntity.ok(response);
+    public ResponseEntity<GetProductResponse> getProductById(
+            @PathVariable("productId") @org.hibernate.validator.constraints.UUID String productId) {
+        return ResponseEntity.ok(productWebMapper.toGetProductResponse(
+                getProductQueryUseCase.getProductByProductId(new GetProductQuery(UUID.fromString(productId)))));
     }
 }

@@ -16,7 +16,10 @@ public class ProductTestConfiguration {
                 new NewTopic("product-created-topic.DLT", 1, (short) 1),
                 // product updated
                 new NewTopic("product-updated-topic", 1, (short) 1),
-                new NewTopic("product-updated-topic.DLT", 1, (short) 1)
+                new NewTopic("product-updated-topic.DLT", 1, (short) 1),
+                // product deleted
+                new NewTopic("product-deleted-topic", 1, (short) 1),
+                new NewTopic("product-deleted-topic.DLT", 1, (short) 1)
         );
     }
 }

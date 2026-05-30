@@ -7,6 +7,7 @@ import com.eventdriven.product.application.port.out.persistence.command.SaveProd
 import com.eventdriven.product.application.port.out.persistence.command.UpdateProductPort;
 import com.eventdriven.product.domain.entity.Product;
 import com.eventdriven.product.domain.valueobject.ProductId;
+import com.eventdriven.product.domain.valueobject.ProductStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -48,7 +49,11 @@ class ProductCommandPersistenceAdapter implements GetProductCommandPort, SavePro
 
     @Override
     public void deleteProductById(ProductId productId) {
-        // TODO: decide if we want to implement soft delete or hard delete, and implement accordingly
-        throw new UnsupportedOperationException("Delete product is not implemented yet!");
+        ProductEntity existingEntity = productJpaRepository.findById(productId.getValue())
+                                                           .orElseThrow(() -> new ProductNotFoundException(
+                                                                   "Product with id " + productId.getValue() +
+                                                                   " not found!"));
+        existingEntity.setStatus(ProductStatus.INACTIVE);
+        productJpaRepository.save(existingEntity);
     }
 }

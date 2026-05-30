@@ -5,8 +5,8 @@ import com.eventdriven.product.adapter.out.persistence.command.postgres.outbox.O
 import com.eventdriven.product.adapter.out.persistence.command.postgres.ProductJpaRepository;
 import com.eventdriven.product.application.command.CreateProductCommand;
 import com.eventdriven.product.application.command.UpdateProductCommand;
-import com.eventdriven.product.application.port.in.CreateProductUseCase;
-import com.eventdriven.product.application.port.in.UpdateProductUseCase;
+import com.eventdriven.product.application.port.in.command.CreateProductUseCase;
+import com.eventdriven.product.application.port.in.command.UpdateProductUseCase;
 import com.eventdriven.product.application.port.out.persistence.outbox.SaveOutboxEventPort;
 import com.eventdriven.product.config.ProductTestConfiguration;
 import com.eventdriven.product.domain.event.ProductUpdatedEventPayload;

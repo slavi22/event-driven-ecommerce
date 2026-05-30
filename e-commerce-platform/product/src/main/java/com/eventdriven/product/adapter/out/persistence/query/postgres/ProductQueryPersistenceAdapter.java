@@ -1,12 +1,10 @@
 package com.eventdriven.product.adapter.out.persistence.query.postgres;
 
 import com.eventdriven.product.application.exception.ProductNotFoundException;
-import com.eventdriven.product.application.port.out.persistence.query.GetAllProductsQueryPort;
-import com.eventdriven.product.application.port.out.persistence.query.GetProductQueryPort;
-import com.eventdriven.product.application.port.out.persistence.query.SaveProductQueryPort;
-import com.eventdriven.product.application.port.out.persistence.query.UpdateProductQueryPort;
+import com.eventdriven.product.application.port.out.persistence.query.*;
 import com.eventdriven.product.domain.entity.Product;
 import com.eventdriven.product.domain.valueobject.ProductId;
+import com.eventdriven.product.domain.valueobject.ProductStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +13,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-class ProductQueryPersistenceAdapter implements GetProductQueryPort, GetAllProductsQueryPort, SaveProductQueryPort, UpdateProductQueryPort {
+class ProductQueryPersistenceAdapter implements GetProductQueryPort, GetAllProductsQueryPort, SaveProductQueryPort, UpdateProductQueryPort, DeleteProductQueryPort {
 
     private final ProductReadJpaRepository productReadJpaRepository;
     private final ProductQueryPersistenceMapper productQueryPersistenceMapper;
@@ -43,8 +41,10 @@ class ProductQueryPersistenceAdapter implements GetProductQueryPort, GetAllProdu
     @Override
     public Product update(Product product) {
         ProductReadEntity existingEntity = productReadJpaRepository.findById(product.getId().getValue())
-                .orElseThrow(() -> new ProductNotFoundException(
-                        "Product with id " + product.getId().getValue() + " not found in projection!"));
+                                                                   .orElseThrow(() -> new ProductNotFoundException(
+                                                                           "Product with id " +
+                                                                           product.getId().getValue() +
+                                                                           " not found in projection!"));
         existingEntity.setName(product.getName());
         existingEntity.setDescription(product.getDescription());
         existingEntity.setPrice(product.getPrice().getAmount());
@@ -52,5 +52,15 @@ class ProductQueryPersistenceAdapter implements GetProductQueryPort, GetAllProdu
         existingEntity.setStatus(product.getStatus());
         existingEntity.setUpdatedAt(product.getUpdatedAt());
         return productQueryPersistenceMapper.toProductDomainEntity(productReadJpaRepository.save(existingEntity));
+    }
+
+    @Override
+    public void deleteProductById(ProductId productId) {
+        ProductReadEntity existingEntity = productReadJpaRepository.findById(productId.getValue())
+                                                           .orElseThrow(() -> new ProductNotFoundException(
+                                                                   "Product with id " + productId.getValue() +
+                                                                   " not found!"));
+        existingEntity.setStatus(ProductStatus.INACTIVE);
+        productReadJpaRepository.save(existingEntity);
     }
 }

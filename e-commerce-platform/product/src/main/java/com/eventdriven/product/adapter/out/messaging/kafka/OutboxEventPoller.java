@@ -20,10 +20,13 @@ public class OutboxEventPoller {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final KafkaTopicProperties kafkaTopicProperties;
 
-    @Scheduled(fixedDelay = 10_000) // every 10 secs
+    @Scheduled(fixedDelayString = "${app.scheduling.product}")
     @Transactional // TODO: maybe add kafka transaction manager here ?
     public void readOutbox() {
         List<OutboxEventEntity> unpublishedEvents = outboxEventJpaRepository.findByPublishedFalse();
+        if (unpublishedEvents.isEmpty()) {
+            return;
+        }
         log.info("Fetching unpublished events from outbox, found {} events", unpublishedEvents.size());
         log.info("Going to publish events to kafka topic: {}", kafkaTopicProperties.getProductCreatedTopic());
         unpublishedEvents.forEach(event -> {

@@ -20,6 +20,8 @@ import org.springframework.util.backoff.FixedBackOff;
 import java.util.HashMap;
 import java.util.Map;
 
+import static adapter.Constants.DLT;
+
 @Configuration
 @RequiredArgsConstructor
 class KafkaProducerConfiguration {
@@ -42,9 +44,11 @@ class KafkaProducerConfiguration {
     public KafkaAdmin.NewTopics topics() {
         return new KafkaAdmin.NewTopics(
                 TopicBuilder.name(kafkaTopicProperties.getProductCreatedTopic()).partitions(3).replicas(3).build(),
-                TopicBuilder.name(kafkaTopicProperties.getProductCreatedTopic() + ".DLT").partitions(3).replicas(3).build(),
+                TopicBuilder.name(kafkaTopicProperties.getProductCreatedTopic() + DLT.getValue()).partitions(3).replicas(3).build(),
                 TopicBuilder.name(kafkaTopicProperties.getProductUpdatedTopic()).partitions(3).replicas(3).build(),
-                TopicBuilder.name(kafkaTopicProperties.getProductUpdatedTopic() + ".DLT").partitions(3).replicas(3).build()
+                TopicBuilder.name(kafkaTopicProperties.getProductUpdatedTopic() + DLT.getValue()).partitions(3).replicas(3).build(),
+                TopicBuilder.name(kafkaTopicProperties.getProductDeletedTopic()).partitions(3).replicas(3).build(),
+                TopicBuilder.name(kafkaTopicProperties.getProductDeletedTopic() + DLT.getValue()).partitions(3).replicas(3).build()
         );
     }
 

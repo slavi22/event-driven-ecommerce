@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static adapter.Constants.DLT;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -193,7 +194,7 @@ class ProductCreatedKafkaListenerIntegrationTest {
 
         // Assert
         try (KafkaConsumer<String, ProductCreatedEventPayload> dltConsumer = buildDltConsumer()) {
-            dltConsumer.subscribe(List.of(topic + ".DLT"));
+            dltConsumer.subscribe(List.of(topic + DLT.getValue()));
             await().atMost(10, TimeUnit.SECONDS)
                    .untilAsserted(() -> {
                        ConsumerRecords<String, ProductCreatedEventPayload>

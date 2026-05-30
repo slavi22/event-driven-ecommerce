@@ -1,15 +1,17 @@
 package com.eventdriven.product.application.service.integration;
 
+import com.eventdriven.product.adapter.out.persistence.command.postgres.ProductJpaRepository;
 import com.eventdriven.product.adapter.out.persistence.command.postgres.outbox.OutboxEventEntity;
 import com.eventdriven.product.adapter.out.persistence.command.postgres.outbox.OutboxEventJpaRepository;
-import com.eventdriven.product.adapter.out.persistence.command.postgres.ProductJpaRepository;
 import com.eventdriven.product.application.command.CreateProductCommand;
+import com.eventdriven.product.application.command.DeleteProductCommand;
 import com.eventdriven.product.application.port.in.command.CreateProductUseCase;
+import com.eventdriven.product.application.port.in.command.DeleteProductUseCase;
 import com.eventdriven.product.application.port.out.persistence.outbox.SaveOutboxEventPort;
 import com.eventdriven.product.config.ProductTestConfiguration;
-import com.eventdriven.product.domain.event.ProductCreatedEventPayload;
+import com.eventdriven.product.domain.event.ProductDeletedEventPayload;
 import com.eventdriven.product.domain.valueobject.ProductCategory;
-import org.junit.jupiter.api.BeforeAll;
+import com.eventdriven.product.domain.valueobject.ProductStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,17 +30,16 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doThrow;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        // neccessary to create the test topic before the application context is fully initialized
-        // otherwise it will use the main KafkaAdmin which creates topics with 3 partitions and 3 replicas
         classes = ProductTestConfiguration.class)
 @Testcontainers
 @ActiveProfiles("test")
-class CreateProductIntegrationTest {
+class DeleteProductIntegrationTest {
 
     @Container
     static PostgreSQLContainer<?> commandDb =
@@ -65,6 +66,8 @@ class CreateProductIntegrationTest {
     @Autowired
     private CreateProductUseCase createProductUseCase;
     @Autowired
+    private DeleteProductUseCase deleteProductUseCase;
+    @Autowired
     private ProductJpaRepository productJpaRepository;
     @Autowired
     private OutboxEventJpaRepository outboxEventJpaRepository;
@@ -77,45 +80,45 @@ class CreateProductIntegrationTest {
         productJpaRepository.deleteAll();
     }
 
-    @BeforeAll
-    static void setupTestTopic() {
-
-    }
-
     @Test
-    @DisplayName("Given valid create product request, when create product, then should create product and outbox event")
-    void testCreateProduct_withValidRequest_shouldCreateProductAndOutboxEvent() {
+    @DisplayName("Given a valid delete command, when delete product, then should mark product as inactive and save outbox event")
+    void testDeleteProduct_withValidCommand_shouldMarkProductAsInactiveAndSaveOutboxEvent() {
         // Arrange
-        CreateProductCommand command =
-                new CreateProductCommand("Laptop", "A laptop", new BigDecimal("999.99"), ProductCategory.ELECTRONICS,
-                                         10);
+        createProductUseCase.createProduct(
+                new CreateProductCommand("Laptop", "A laptop", new BigDecimal("999.99"), ProductCategory.ELECTRONICS, 10));
+        outboxEventJpaRepository.deleteAll();
+
+        UUID productId = productJpaRepository.findAll().getFirst().getId();
 
         // Act
-        createProductUseCase.createProduct(command);
+        deleteProductUseCase.deleteProduct(new DeleteProductCommand(productId));
 
         // Assert
-        assertEquals(1, productJpaRepository.findAll().size());
+        assertEquals(ProductStatus.INACTIVE, productJpaRepository.findAll().getFirst().getStatus());
 
         List<OutboxEventEntity> events = outboxEventJpaRepository.findAll();
         assertEquals(1, events.size());
         assertFalse(events.getFirst().isPublished());
-        assertEquals(ProductCreatedEventPayload.AGGREGATE_TYPE, events.getFirst().getAggregateType());
-        assertEquals(ProductCreatedEventPayload.EVENT_TYPE, events.getFirst().getEventType());
+        assertEquals(ProductDeletedEventPayload.AGGREGATE_TYPE, events.getFirst().getAggregateType());
+        assertEquals(ProductDeletedEventPayload.EVENT_TYPE, events.getFirst().getEventType());
     }
 
     @Test
-    @DisplayName("Given valid create product request, when create product and exception thrown, then should rollback both writes")
-    void testCreateProduct_whenExceptionThrown_shouldRollbackBothWrites() {
+    @DisplayName("Given a valid delete command, when exception is thrown, then should rollback both writes")
+    void testDeleteProduct_whenExceptionThrown_shouldRollbackBothWrites() {
         // Arrange
-        CreateProductCommand command =
-                new CreateProductCommand("Laptop", "A laptop", new BigDecimal("999.99"), ProductCategory.ELECTRONICS,
-                                         10);
+        createProductUseCase.createProduct(
+                new CreateProductCommand("Laptop", "A laptop", new BigDecimal("999.99"), ProductCategory.ELECTRONICS, 10));
+        outboxEventJpaRepository.deleteAll();
+
+        UUID productId = productJpaRepository.findAll().getFirst().getId();
+        DeleteProductCommand command = new DeleteProductCommand(productId);
         doThrow(new RuntimeException("Outbox write failed")).when(saveOutboxEventPort).save(ArgumentMatchers.any());
 
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> createProductUseCase.createProduct(command));
-        assertEquals(0, productJpaRepository.findAll().size());
+        assertThrows(RuntimeException.class,
+                () -> deleteProductUseCase.deleteProduct(command));
+        assertEquals(ProductStatus.ACTIVE, productJpaRepository.findAll().getFirst().getStatus());
         assertEquals(0, outboxEventJpaRepository.findAll().size());
     }
-
 }

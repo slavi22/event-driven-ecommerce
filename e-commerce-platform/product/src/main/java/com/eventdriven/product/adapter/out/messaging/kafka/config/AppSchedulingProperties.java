@@ -11,4 +11,5 @@ import org.springframework.stereotype.Component;
 @Setter
 class AppSchedulingProperties {
     private boolean enabled;
+    private long product;
 }

@@ -52,9 +52,6 @@ public class Product extends AggregateRoot<ProductId> {
         return product;
     }
 
-    private Product() {
-    }
-
     public void update(String name, String description, Money price, ProductCategory category) {
         this.name = name;
         this.description = description;
@@ -62,6 +59,13 @@ public class Product extends AggregateRoot<ProductId> {
         this.category = category;
         this.updatedAt = Instant.now();
         validate();
+    }
+
+    public void delete() {
+        this.status = ProductStatus.INACTIVE;
+    }
+
+    private Product() {
     }
 
     /*

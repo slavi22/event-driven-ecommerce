@@ -1,9 +1,9 @@
 package com.eventdriven.product.application.service.unit;
 
-import com.eventdriven.product.application.dto.CreateProductResult;
+import com.eventdriven.product.application.dto.GetProductResult;
 import com.eventdriven.product.application.mapper.ProductApplicationMapper;
 import com.eventdriven.product.application.port.out.persistence.query.GetAllProductsQueryPort;
-import com.eventdriven.product.application.service.GetAllProductsQueryService;
+import com.eventdriven.product.application.service.query.GetAllProductsQueryService;
 import com.eventdriven.product.domain.entity.Product;
 import com.eventdriven.product.domain.valueobject.Money;
 import com.eventdriven.product.domain.valueobject.ProductCategory;
@@ -42,21 +42,21 @@ class GetAllProductsQueryServiceTest {
         Product product = Product.create("Product Name", "Product Description",
                                          Money.of(new BigDecimal("9.99")), ProductCategory.ELECTRONICS);
         List<Product> products = List.of(product);
-        List<CreateProductResult> expectedResponses = List.of(
-                new CreateProductResult("Product Name", "Product Description",
+        List<GetProductResult> expectedResponses = List.of(
+                new GetProductResult(product.getId().getValue().toString(), "Product Name", "Product Description",
                                         new BigDecimal("9.99"), ProductCategory.ELECTRONICS,
-                                        ProductStatus.ACTIVE, product.getCreatedAt()));
+                                        ProductStatus.ACTIVE, product.getCreatedAt(), product.getUpdatedAt()));
 
         when(getAllProductsQueryPort.getAllProducts()).thenReturn(products);
-        when(productApplicationMapper.toCreateProductResultList(anyList())).thenReturn(expectedResponses);
+        when(productApplicationMapper.toGetProductResultList(anyList())).thenReturn(expectedResponses);
 
         // Act
-        List<CreateProductResult> result = getAllProductsQueryService.getAllProducts();
+        List<GetProductResult> result = getAllProductsQueryService.getAllProducts();
 
         // Assert
         assertEquals(expectedResponses, result);
         verify(getAllProductsQueryPort).getAllProducts();
-        verify(productApplicationMapper).toCreateProductResultList(products);
+        verify(productApplicationMapper).toGetProductResultList(products);
     }
 
     @Test
@@ -64,14 +64,14 @@ class GetAllProductsQueryServiceTest {
     void testGetAllProducts_whenNoProductsExist_shouldReturnEmptyList() {
         // Arrange
         when(getAllProductsQueryPort.getAllProducts()).thenReturn(List.of());
-        when(productApplicationMapper.toCreateProductResultList(anyList())).thenReturn(List.of());
+        when(productApplicationMapper.toGetProductResultList(anyList())).thenReturn(List.of());
 
         // Act
-        List<CreateProductResult> result = getAllProductsQueryService.getAllProducts();
+        List<GetProductResult> result = getAllProductsQueryService.getAllProducts();
 
         // Assert
         assertTrue(result.isEmpty());
         verify(getAllProductsQueryPort).getAllProducts();
-        verify(productApplicationMapper).toCreateProductResultList(List.of());
+        verify(productApplicationMapper).toGetProductResultList(List.of());
     }
 }

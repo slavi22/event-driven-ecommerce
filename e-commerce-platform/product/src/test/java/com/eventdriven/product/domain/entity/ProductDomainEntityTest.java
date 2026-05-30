@@ -3,10 +3,14 @@ package com.eventdriven.product.domain.entity;
 import com.eventdriven.product.domain.exception.ProductDomainException;
 import com.eventdriven.product.domain.valueobject.Money;
 import com.eventdriven.product.domain.valueobject.ProductCategory;
+import com.eventdriven.product.domain.valueobject.ProductId;
+import com.eventdriven.product.domain.valueobject.ProductStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -44,5 +48,59 @@ class ProductDomainEntityTest {
         assertEquals("desc", product.getDescription());
         assertEquals(money, product.getPrice());
         assertEquals(ProductCategory.ELECTRONICS, product.getCategory());
+    }
+
+    @Test
+    @DisplayName("Updating a product with valid input should update the product fields")
+    void testUpdateProduct_withValidInput_shouldUpdateProductFields() {
+        // Arrange
+        Product product = buildExistingProduct();
+        Money newPrice = Money.of(new BigDecimal("19.99"));
+
+        // Act
+        product.update("New Name", "New Description", newPrice, ProductCategory.CLOTHING);
+
+        // Assert
+        assertEquals("New Name", product.getName());
+        assertEquals("New Description", product.getDescription());
+        assertEquals(newPrice, product.getPrice());
+        assertEquals(ProductCategory.CLOTHING, product.getCategory());
+    }
+
+    @Test
+    @DisplayName("Updating a product with a blank name should throw ProductDomainException")
+    void testUpdateProduct_withBlankName_shouldThrowProductDomainException() {
+        // Arrange
+        Product product = buildExistingProduct();
+        Money price = Money.of(new BigDecimal("19.99"));
+
+        // Act & Assert
+        assertThrows(ProductDomainException.class,
+                () -> product.update("", "New Description", price, ProductCategory.ELECTRONICS));
+    }
+
+    @Test
+    @DisplayName("Deleting a product should set its status to INACTIVE")
+    void testDeleteProduct_shouldSetStatusToInactive() {
+        // Arrange
+        Product product = buildExistingProduct();
+
+        // Act
+        product.delete();
+
+        // Assert
+        assertEquals(ProductStatus.INACTIVE, product.getStatus());
+    }
+
+    private Product buildExistingProduct() {
+        return Product.reconstitute(
+                new ProductId(UUID.randomUUID()),
+                "Original Name",
+                "Original Description",
+                Money.of(new BigDecimal("9.99")),
+                ProductCategory.ELECTRONICS,
+                ProductStatus.ACTIVE,
+                Instant.now(),
+                null);
     }
 }

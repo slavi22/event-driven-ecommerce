@@ -5,10 +5,12 @@ import com.eventdriven.product.adapter.in.web.dto.request.UpdateProductRequest;
 import com.eventdriven.product.adapter.in.web.dto.response.CreateProductResponse;
 import com.eventdriven.product.adapter.in.web.dto.response.UpdateProductResponse;
 import com.eventdriven.product.application.command.CreateProductCommand;
+import com.eventdriven.product.application.command.DeleteProductCommand;
 import com.eventdriven.product.application.command.UpdateProductCommand;
 import com.eventdriven.product.application.dto.UpdateProductResult;
-import com.eventdriven.product.application.port.in.CreateProductUseCase;
-import com.eventdriven.product.application.port.in.UpdateProductUseCase;
+import com.eventdriven.product.application.port.in.command.CreateProductUseCase;
+import com.eventdriven.product.application.port.in.command.DeleteProductUseCase;
+import com.eventdriven.product.application.port.in.command.UpdateProductUseCase;
 import com.eventdriven.product.domain.exception.ProductDomainException;
 import com.eventdriven.product.domain.valueobject.ProductCategory;
 import com.eventdriven.product.domain.valueobject.ProductStatus;
@@ -27,8 +29,10 @@ import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -41,6 +45,8 @@ class ProductCommandControllerTest {
     private CreateProductUseCase createProductUseCase;
     @MockitoBean
     private UpdateProductUseCase updateProductUseCase;
+    @MockitoBean
+    private DeleteProductUseCase deleteProductUseCase;
     @MockitoBean
     private ProductWebMapper productWebMapper;
     @Autowired
@@ -191,6 +197,39 @@ class ProductCommandControllerTest {
         mockMvc.perform(put("/api/v1/products")
                                 .content(jsonMapper.writeValueAsBytes(request))
                                 .contentType(MediaType.APPLICATION_JSON))
+               .andExpect(status().isInternalServerError());
+    }
+
+    // Delete Product Tests
+
+    @Test
+    @DisplayName("Deleting a product with a valid product ID should return no content")
+    void testDeleteProduct_withValidProductId_shouldReturnNoContent() throws Exception {
+        // Act & Assert
+        mockMvc.perform(delete("/api/v1/products/{productId}", UUID.randomUUID()))
+               .andExpect(status().isNoContent());
+
+        verify(deleteProductUseCase).deleteProduct(any(DeleteProductCommand.class));
+    }
+
+    @Test
+    @DisplayName("Deleting a product with an invalid product ID should return bad request")
+    void testDeleteProduct_withInvalidProductId_shouldReturnBadRequest() throws Exception {
+        // Act & Assert
+        mockMvc.perform(delete("/api/v1/products/{productId}", "not-a-uuid"))
+               .andExpect(status().isBadRequest())
+               .andExpect(jsonPath("$.detail").value("Invalid request parameter"))
+               .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()));
+    }
+
+    @Test
+    @DisplayName("Deleting a product when use case throws exception should return internal server error")
+    void testDeleteProduct_whenUseCaseThrowsException_shouldReturnInternalServerError() throws Exception {
+        // Arrange
+        doThrow(new ProductDomainException("error")).when(deleteProductUseCase).deleteProduct(any(DeleteProductCommand.class));
+
+        // Act & Assert
+        mockMvc.perform(delete("/api/v1/products/{productId}", UUID.randomUUID()))
                .andExpect(status().isInternalServerError());
     }
 }

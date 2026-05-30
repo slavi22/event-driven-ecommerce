@@ -12,4 +12,5 @@ import org.springframework.stereotype.Component;
 public class KafkaTopicProperties {
     private String productCreatedTopic;
     private String productUpdatedTopic;
+    private String productDeletedTopic;
 }
