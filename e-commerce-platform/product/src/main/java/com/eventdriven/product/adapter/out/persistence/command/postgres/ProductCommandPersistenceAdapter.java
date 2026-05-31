@@ -1,6 +1,5 @@
 package com.eventdriven.product.adapter.out.persistence.command.postgres;
 
-import com.eventdriven.product.application.exception.ProductNotFoundException;
 import com.eventdriven.product.application.port.out.persistence.command.DeleteProductPort;
 import com.eventdriven.product.application.port.out.persistence.command.GetProductCommandPort;
 import com.eventdriven.product.application.port.out.persistence.command.SaveProductPort;
@@ -10,6 +9,8 @@ import com.eventdriven.product.domain.valueobject.ProductId;
 import com.eventdriven.contracts.product.enums.ProductStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 
 @Component
@@ -21,10 +22,9 @@ class ProductCommandPersistenceAdapter implements GetProductCommandPort, SavePro
 
 
     @Override
-    public Product getProductByProductId(ProductId productId) {
-        return productCommandPersistenceMapper.toProductDomainEntity(
-                productJpaRepository.findById(productId.getValue()).orElseThrow(
-                        () -> new ProductNotFoundException("Product with id " + productId.getValue() + " not found!")));
+    public Optional<Product> getProductByProductId(ProductId productId) {
+        return productJpaRepository.findById(productId.getValue())
+                                   .map(productCommandPersistenceMapper::toProductDomainEntity);
     }
 
     @Override
@@ -36,7 +36,7 @@ class ProductCommandPersistenceAdapter implements GetProductCommandPort, SavePro
     @Override
     public Product update(Product product) {
         ProductEntity existingEntity = productJpaRepository.findById(product.getId().getValue())
-                                                           .orElseThrow(() -> new ProductNotFoundException(
+                                                           .orElseThrow(() -> new IllegalStateException(
                                                                    "Product with id " + product.getId().getValue() +
                                                                    " not found!"));
         existingEntity.setName(product.getName());
@@ -50,7 +50,7 @@ class ProductCommandPersistenceAdapter implements GetProductCommandPort, SavePro
     @Override
     public void deleteProductById(ProductId productId) {
         ProductEntity existingEntity = productJpaRepository.findById(productId.getValue())
-                                                           .orElseThrow(() -> new ProductNotFoundException(
+                                                           .orElseThrow(() -> new IllegalStateException(
                                                                    "Product with id " + productId.getValue() +
                                                                    " not found!"));
         existingEntity.setStatus(ProductStatus.INACTIVE);

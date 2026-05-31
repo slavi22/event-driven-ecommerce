@@ -1,6 +1,7 @@
 package com.eventdriven.product.application.service.command;
 
 import com.eventdriven.product.application.command.UpdateProductCommand;
+import com.eventdriven.product.application.exception.ProductNotFoundException;
 import com.eventdriven.product.application.port.out.persistence.outbox.OutboxEvent;
 import com.eventdriven.product.application.dto.UpdateProductResult;
 import com.eventdriven.product.application.mapper.ProductApplicationMapper;
@@ -36,8 +37,8 @@ public class UpdateProductService implements UpdateProductUseCase {
     @Transactional
     public UpdateProductResult updateProduct(UpdateProductCommand command) {
         log.info("Updating product with id: {}", command.productId());
-        Product product =
-                getProductCommandPort.getProductByProductId(new ProductId(UUID.fromString(command.productId())));
+        Product product = getProductCommandPort.getProductByProductId(new ProductId(UUID.fromString(command.productId())))
+                .orElseThrow(() -> new ProductNotFoundException("Product with id " + command.productId() + " not found!"));
 
         product.update(command.name(), command.description(), Money.of(command.price()), command.category());
 

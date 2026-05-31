@@ -1,6 +1,7 @@
 package com.eventdriven.product.application.service.command;
 
 import com.eventdriven.product.application.command.DeleteProductCommand;
+import com.eventdriven.product.application.exception.ProductNotFoundException;
 import com.eventdriven.product.application.port.in.command.DeleteProductUseCase;
 import com.eventdriven.product.application.port.out.persistence.command.DeleteProductPort;
 import com.eventdriven.product.application.port.out.persistence.command.GetProductCommandPort;
@@ -32,7 +33,8 @@ public class DeleteProductService implements DeleteProductUseCase {
     public void deleteProduct(DeleteProductCommand command) {
         log.info("Deleting (marking as inactive) product with ID: {}", command.productId());
         ProductId productId = new ProductId(command.productId());
-        Product existingProduct = getProductCommandPort.getProductByProductId(productId);
+        Product existingProduct = getProductCommandPort.getProductByProductId(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Product with id " + productId.getValue() + " not found!"));
         existingProduct.delete();
         log.info("Going to mark product with ID: {} as deleted (inactive) ", command.productId());
         deleteProductPort.deleteProductById(productId);

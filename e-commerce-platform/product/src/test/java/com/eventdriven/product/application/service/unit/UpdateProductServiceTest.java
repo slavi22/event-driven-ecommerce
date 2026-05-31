@@ -25,6 +25,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -57,7 +58,7 @@ class UpdateProductServiceTest {
                 existingProduct.getId().getValue().toString(),
                 "New Name", "New Description", new BigDecimal("19.99"), ProductCategory.ELECTRONICS);
 
-        when(getProductCommandPort.getProductByProductId(any(ProductId.class))).thenReturn(existingProduct);
+        when(getProductCommandPort.getProductByProductId(any(ProductId.class))).thenReturn(Optional.of(existingProduct));
         when(updateProductPort.update(any(Product.class))).thenReturn(existingProduct);
 
         // Act
@@ -71,14 +72,13 @@ class UpdateProductServiceTest {
 
     @Test
     @DisplayName("Updating a product that does not exist should throw ProductNotFoundException")
-    void testUpdateProduct_whenProductNotFound_shouldThrowException() {
+    void testUpdateProduct_whenProductNotFound_shouldThrowProductNotFoundException() {
         // Arrange
         UpdateProductCommand command = new UpdateProductCommand(
                 UUID.randomUUID().toString(),
                 "New Name", "New Description", new BigDecimal("19.99"), ProductCategory.ELECTRONICS);
 
-        when(getProductCommandPort.getProductByProductId(any(ProductId.class)))
-                .thenThrow(new ProductNotFoundException("Product not found"));
+        when(getProductCommandPort.getProductByProductId(any(ProductId.class))).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(ProductNotFoundException.class, () -> updateProductService.updateProduct(command));
@@ -89,14 +89,14 @@ class UpdateProductServiceTest {
 
     @Test
     @DisplayName("Updating a product with invalid command should throw ProductDomainException")
-    void testUpdateProduct_withInvalidCommand_shouldThrowException() {
+    void testUpdateProduct_withInvalidCommand_shouldThrowProductDomainException() {
         // Arrange
         Product existingProduct = buildExistingProduct();
         UpdateProductCommand command = new UpdateProductCommand(
                 existingProduct.getId().getValue().toString(),
                 null, "New Description", new BigDecimal("19.99"), ProductCategory.ELECTRONICS);
 
-        when(getProductCommandPort.getProductByProductId(any(ProductId.class))).thenReturn(existingProduct);
+        when(getProductCommandPort.getProductByProductId(any(ProductId.class))).thenReturn(Optional.of(existingProduct));
 
         // Act & Assert
         assertThrows(ProductDomainException.class, () -> updateProductService.updateProduct(command));

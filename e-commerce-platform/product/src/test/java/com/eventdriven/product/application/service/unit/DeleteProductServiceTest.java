@@ -23,6 +23,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -51,7 +52,7 @@ class DeleteProductServiceTest {
         Product existingProduct = buildExistingProduct();
         DeleteProductCommand command = new DeleteProductCommand(existingProduct.getId().getValue());
 
-        when(getProductCommandPort.getProductByProductId(any(ProductId.class))).thenReturn(existingProduct);
+        when(getProductCommandPort.getProductByProductId(any(ProductId.class))).thenReturn(Optional.of(existingProduct));
 
         // Act
         deleteProductService.deleteProduct(command);
@@ -64,12 +65,11 @@ class DeleteProductServiceTest {
 
     @Test
     @DisplayName("Deleting a product that does not exist should throw ProductNotFoundException")
-    void testDeleteProduct_whenProductNotFound_shouldThrowException() {
+    void testDeleteProduct_whenProductNotFound_shouldThrowProductNotFoundException() {
         // Arrange
         DeleteProductCommand command = new DeleteProductCommand(UUID.randomUUID());
 
-        when(getProductCommandPort.getProductByProductId(any(ProductId.class)))
-                .thenThrow(new ProductNotFoundException("Product not found"));
+        when(getProductCommandPort.getProductByProductId(any(ProductId.class))).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(ProductNotFoundException.class, () -> deleteProductService.deleteProduct(command));

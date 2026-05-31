@@ -1,6 +1,5 @@
 package com.eventdriven.product.adapter.out.persistence.query.postgres;
 
-import com.eventdriven.product.application.exception.ProductNotFoundException;
 import com.eventdriven.product.application.port.out.persistence.query.*;
 import com.eventdriven.product.domain.entity.Product;
 import com.eventdriven.product.domain.valueobject.ProductId;
@@ -41,7 +40,7 @@ class ProductQueryPersistenceAdapter implements GetProductQueryPort, GetAllProdu
     @Override
     public Product update(Product product) {
         ProductReadEntity existingEntity = productReadJpaRepository.findById(product.getId().getValue())
-                                                                   .orElseThrow(() -> new ProductNotFoundException(
+                                                                   .orElseThrow(() -> new IllegalStateException(
                                                                            "Product with id " +
                                                                            product.getId().getValue() +
                                                                            " not found in projection!"));
@@ -57,7 +56,7 @@ class ProductQueryPersistenceAdapter implements GetProductQueryPort, GetAllProdu
     @Override
     public void deleteProductById(ProductId productId) {
         ProductReadEntity existingEntity = productReadJpaRepository.findById(productId.getValue())
-                                                           .orElseThrow(() -> new ProductNotFoundException(
+                                                           .orElseThrow(() -> new IllegalStateException(
                                                                    "Product with id " + productId.getValue() +
                                                                    " not found!"));
         existingEntity.setStatus(ProductStatus.INACTIVE);

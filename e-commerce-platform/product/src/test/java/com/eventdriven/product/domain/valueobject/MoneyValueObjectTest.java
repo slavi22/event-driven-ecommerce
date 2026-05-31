@@ -1,5 +1,6 @@
 package com.eventdriven.product.domain.valueobject;
 
+import com.eventdriven.product.domain.exception.ProductDomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -21,23 +22,23 @@ class MoneyValueObjectTest {
     }
 
     @Test
-    @DisplayName("Creating a Money value object with a negative amount should throw IllegalArgumentException")
-    void testCreateMoneyValueObject_whenAmountIsNull_shouldThrowIllegalArgumentException() {
+    @DisplayName("Creating a Money value object with a negative amount should throw ProductDomainException")
+    void testCreateMoneyValueObject_whenAmountIsNull_shouldThrowProductDomainException() {
         // Arrange
         BigDecimal amount = null;
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> Money.of(amount));
+        assertThrows(ProductDomainException.class, () -> Money.of(amount));
     }
 
     @Test
-    @DisplayName("Creating a Money value object with a negative amount should throw IllegalArgumentException")
-    void testCreateMoneyValueObject_whenAmountValueIsLessThanZero_shouldThrowIllegalArgumentException() {
+    @DisplayName("Creating a Money value object with a negative amount should throw ProductDomainException")
+    void testCreateMoneyValueObject_whenAmountValueIsLessThanZero_shouldProductDomainException() {
         // Arrange
         BigDecimal amount = new BigDecimal("-1.00");
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> Money.of(amount));
+        assertThrows(ProductDomainException.class, () -> Money.of(amount));
     }
 
     @Test
@@ -73,14 +74,14 @@ class MoneyValueObjectTest {
     }
 
     @Test
-    @DisplayName("Subtracting a Money value object from another Money value object with an amount that would result in a negative amount should throw IllegalArgumentException")
-    void testMoneyValueObjectSubtractOperation_withInvalidAmount_shouldThrowIllegalArgumentException() {
+    @DisplayName("Subtracting a Money value object from another Money value object with an amount that would result in a negative amount should throw ProductDomainException")
+    void testMoneyValueObjectSubtractOperation_withInvalidAmount_shouldThrowProductDomainException() {
         // Arrange
         Money money1 = Money.of(new BigDecimal("5.00"));
         Money money2 = Money.of(new BigDecimal("10.00"));
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> money1.subtract(money2));
+        assertThrows(ProductDomainException.class, () -> money1.subtract(money2));
     }
 
     @Test
