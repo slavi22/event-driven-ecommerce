@@ -1,0 +1,7 @@
+package com.eventdriven.projection.stock.application.port.out.query;
+
+import com.eventdriven.stock.domain.entity.Stock;
+
+public interface SaveStockQueryPort {
+    Stock save(Stock stock);
+}

@@ -13,14 +13,6 @@ kafka:
       acks: all
       max-in-flight-requests-per-connection: 5
       retries: 2147483647 # Integer.MAX_VALUE, this is the default value for retries in Spring Kafka, but we set it explicitly for clarity
-    consumer:
-      groups:
-        product-created-events-group: product-created-events-group
-        product-updated-events-group: product-updated-events-group
-        product-deleted-events-group: product-deleted-events-group
-      auto-offset: earliest # Start from the beginning of the topic when there are no committed offsets
-      json-deserializer-trusted-packages: com.eventdriven.product.domain.event # Allow deserialization of events from this package
-
 app:
   scheduling:
     enabled: true

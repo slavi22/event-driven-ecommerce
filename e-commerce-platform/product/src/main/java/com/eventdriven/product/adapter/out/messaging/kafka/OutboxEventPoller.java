@@ -28,13 +28,24 @@ public class OutboxEventPoller {
             return;
         }
         log.info("Fetching unpublished events from outbox, found {} events", unpublishedEvents.size());
-        log.info("Going to publish events to kafka topic: {}", kafkaTopicProperties.getProductCreatedTopic());
         unpublishedEvents.forEach(event -> {
-            kafkaTemplate.send(kafkaTopicProperties.getProductCreatedTopic(), event.getAggregateId(), event.getPayload());
+            String topic = getTopicForEventType(event.getEventType());
+            log.info("Going to publish events to kafka topic: {}", topic);
+
+            kafkaTemplate.send(topic, event.getAggregateId(), event.getPayload());
             event.setPublished(true);
+            log.info("Finished publishing events to kafka topic: {}", kafkaTopicProperties.getProductCreatedTopic());
         });
-        log.info("Finished publishing events to kafka topic: {}", kafkaTopicProperties.getProductCreatedTopic());
         // we don't need to call saveAll here because the entities are managed by JPA and since we have @Transactioanal if everything goes ok it will be automatically updated
         // outboxEventJpaRepository.saveAll(unpublishedEvents);
+    }
+
+    private String getTopicForEventType(String eventType) {
+        return switch (eventType) {
+            case "ProductCreated" -> kafkaTopicProperties.getProductCreatedTopic();
+            case "ProductUpdated" -> kafkaTopicProperties.getProductUpdatedTopic();
+            case "ProductDeleted" -> kafkaTopicProperties.getProductDeletedTopic();
+            default -> throw new IllegalArgumentException("Unknown event type: " + eventType);
+        };
     }
 }

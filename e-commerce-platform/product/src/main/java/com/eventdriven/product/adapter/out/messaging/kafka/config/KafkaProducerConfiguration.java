@@ -2,7 +2,6 @@ package com.eventdriven.product.adapter.out.messaging.kafka.config;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.boot.kafka.autoconfigure.KafkaProperties;
 import org.springframework.context.annotation.Bean;
@@ -12,10 +11,6 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
-import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
-import org.springframework.kafka.listener.DefaultErrorHandler;
-import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
-import org.springframework.util.backoff.FixedBackOff;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,25 +45,6 @@ class KafkaProducerConfiguration {
                 TopicBuilder.name(kafkaTopicProperties.getProductDeletedTopic()).partitions(3).replicas(3).build(),
                 TopicBuilder.name(kafkaTopicProperties.getProductDeletedTopic() + DLT.getValue()).partitions(3).replicas(3).build()
         );
-    }
-
-    // DLT setup
-    @Bean
-    public DefaultErrorHandler errorHandler() {
-        // We cannot reuse the main KafkaTemplate<String, String> here because by the time the
-        // DeadLetterPublishingRecoverer kicks in, deserialization has already happened — the ConsumerRecord
-        // holds a ProductCreatedEventPayload object, not the original bytes. StringSerializer only handles
-        // String values, so passing it a domain object causes a SerializationException.
-        // JacksonJsonSerializer can serialize any Java object to JSON bytes, which is what we need.
-        Map<String, Object> dltConfig = new HashMap<>(producerConfig());
-        dltConfig.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
-        KafkaTemplate<String, Object> dltKafkaTemplate = new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(dltConfig));
-        DeadLetterPublishingRecoverer recoverer =
-                new DeadLetterPublishingRecoverer(dltKafkaTemplate, ((consumerRecord, _) -> new TopicPartition(
-                        consumerRecord.topic() + ".DLT", -1)));
-        FixedBackOff backOff = new FixedBackOff(1000L, 3L);
-
-        return new DefaultErrorHandler(recoverer, backOff);
     }
 
     private Map<String, Object> producerConfig() {

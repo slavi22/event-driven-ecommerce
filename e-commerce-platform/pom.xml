@@ -14,6 +14,7 @@
         <module>api-gateway</module>
         <module>common</module>
         <module>contracts</module>
+        <module>projection</module>
     </modules>
 
     <groupId>com.eventdriven</groupId>
