@@ -1,5 +1,8 @@
 package com.eventdriven.product.adapter.out.messaging.kafka;
 
+import com.eventdriven.contracts.product.event.ProductCreatedEventPayload;
+import com.eventdriven.contracts.product.event.ProductDeletedEventPayload;
+import com.eventdriven.contracts.product.event.ProductUpdatedEventPayload;
 import com.eventdriven.product.adapter.out.messaging.kafka.config.KafkaTopicProperties;
 import com.eventdriven.product.adapter.out.persistence.command.postgres.outbox.OutboxEventEntity;
 import com.eventdriven.product.adapter.out.persistence.command.postgres.outbox.OutboxEventJpaRepository;
@@ -32,19 +35,25 @@ public class OutboxEventPoller {
             String topic = getTopicForEventType(event.getEventType());
             log.info("Going to publish events to kafka topic: {}", topic);
 
-            kafkaTemplate.send(topic, event.getAggregateId(), event.getPayload());
-            event.setPublished(true);
-            log.info("Finished publishing events to kafka topic: {}", kafkaTopicProperties.getProductCreatedTopic());
+            kafkaTemplate.send(topic, event.getAggregateId(), event.getPayload())
+                    .whenComplete((_, ex) -> {
+                        if (ex != null) {
+                            log.error("Failed to publish event to kafka topic: {}", topic, ex);
+                            return;
+                        }
+                        event.setPublished(true);
+                        log.info("Finished publishing event to kafka topic: {}", topic);
+                    }).join();
         });
         // we don't need to call saveAll here because the entities are managed by JPA and since we have @Transactioanal if everything goes ok it will be automatically updated
-        // outboxEventJpaRepository.saveAll(unpublishedEvents);
+        outboxEventJpaRepository.saveAll(unpublishedEvents);
     }
 
     private String getTopicForEventType(String eventType) {
         return switch (eventType) {
-            case "ProductCreated" -> kafkaTopicProperties.getProductCreatedTopic();
-            case "ProductUpdated" -> kafkaTopicProperties.getProductUpdatedTopic();
-            case "ProductDeleted" -> kafkaTopicProperties.getProductDeletedTopic();
+            case ProductCreatedEventPayload.EVENT_TYPE -> kafkaTopicProperties.getProductCreatedTopic();
+            case ProductUpdatedEventPayload.EVENT_TYPE -> kafkaTopicProperties.getProductUpdatedTopic();
+            case ProductDeletedEventPayload.EVENT_TYPE -> kafkaTopicProperties.getProductDeletedTopic();
             default -> throw new IllegalArgumentException("Unknown event type: " + eventType);
         };
     }

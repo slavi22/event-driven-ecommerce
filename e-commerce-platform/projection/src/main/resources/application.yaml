@@ -9,11 +9,15 @@ kafka:
     product-created-topic: product-created-topic
     product-updated-topic: product-updated-topic
     product-deleted-topic: product-deleted-topic
+    stock-initialized-topic: stock-initialized-topic
+    stock-replenished-topic: stock-replenished-topic
   config:
     consumer:
       groups:
-        product-created-events-group: product-created-events-group-projection
-        product-updated-events-group: product-updated-events-group-projection
-        product-deleted-events-group: product-deleted-events-group-projection
+        product-created-events-group: projection-product-created-group
+        product-updated-events-group: projection-product-updated-group
+        product-deleted-events-group: projection-product-deleted-group
+        stock-initialized-events-group: projection-stock-initialized-group
+        stock-replenished-events-group: projection-stock-replenished-group
       auto-offset: earliest
-      json-deserializer-trusted-packages: com.eventdriven.contracts.product.event
+      json-deserializer-trusted-packages: com.eventdriven.contracts.product.event,com.eventdriven.contracts.stock.event

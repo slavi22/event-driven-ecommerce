@@ -1,6 +1,7 @@
-package com.eventdriven.projection.product.adapter.in.web;
+package com.eventdriven.projection.shared.web;
 
 import com.eventdriven.projection.product.application.exception.ProductNotFoundException;
+import com.eventdriven.projection.stock.application.exception.StockNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -15,6 +16,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ProductNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     ProblemDetail handleProductNotFound(ProductNotFoundException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+        problemDetail.setTitle("Not Found");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(StockNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ProblemDetail handleStockNotFound(StockNotFoundException e) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
         problemDetail.setTitle("Not Found");
         return problemDetail;

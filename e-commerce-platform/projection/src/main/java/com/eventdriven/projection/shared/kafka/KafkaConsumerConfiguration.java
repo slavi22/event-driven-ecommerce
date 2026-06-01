@@ -1,4 +1,4 @@
-package com.eventdriven.projection.product.adapter.in.messaging.kafka.config;
+package com.eventdriven.projection.shared.kafka;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;

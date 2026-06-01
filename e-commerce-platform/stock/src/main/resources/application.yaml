@@ -1,3 +1,26 @@
 spring:
   application:
     name: stock
+
+kafka:
+  topics:
+    product-created-topic: product-created-topic
+    stock-initialized-topic: stock-initialized-topic
+    stock-replenished-topic: stock-replenished-topic
+    stock-reserved-topic: stock-reserved-topic
+    stock-depleted-topic: stock-depleted-topic
+  config:
+    producer:
+      idempotency-enabled: true
+      acks: all
+      max-in-flight-requests-per-connection: 5
+      retries: 2147483647
+    consumer:
+      groups:
+        product-created-events-group: stock-product-created-group
+      auto-offset: earliest
+      json-deserializer-trusted-packages: com.eventdriven.contracts.product.event,com.eventdriven.contracts.order.event
+
+app:
+  scheduling:
+    enabled: true

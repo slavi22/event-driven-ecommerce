@@ -39,17 +39,21 @@ public class Stock extends AggregateRoot<StockId> {
     }
 
     public void replenish(int amount) {
-        this.quantity.add(Quantity.of(amount));
+        this.quantity = this.quantity.add(Quantity.of(amount));
         this.updatedAt = Instant.now();
     }
 
     public void reserve(int amount) {
-        this.quantity.subtract(Quantity.of(amount));
+        if (this.quantity.getValue() < amount) {
+            throw new StockDomainException(
+                    "Insufficient stock: requested " + amount + " but only " + this.quantity.getValue() + " available");
+        }
+        this.quantity = this.quantity.subtract(Quantity.of(amount));
         this.updatedAt = Instant.now();
     }
 
     public void release(int amount) {
-        this.quantity.add(Quantity.of(amount));
+        this.quantity = this.quantity.add(Quantity.of(amount));
         this.updatedAt = Instant.now();
     }
 

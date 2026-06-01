@@ -1,7 +1,7 @@
 package com.eventdriven.projection.stock.application.port.out.query;
 
-import com.eventdriven.stock.domain.entity.Stock;
+import com.eventdriven.projection.stock.application.dto.GetStockResult;
 
 public interface UpdateStockQueryPort {
-    Stock update(Stock stock);
+    GetStockResult update(GetStockResult result);
 }

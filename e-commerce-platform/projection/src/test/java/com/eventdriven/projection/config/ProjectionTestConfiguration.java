@@ -16,7 +16,11 @@ public class ProjectionTestConfiguration {
                 new NewTopic("product-updated-topic", 1, (short) 1),
                 new NewTopic("product-updated-topic.DLT", 1, (short) 1),
                 new NewTopic("product-deleted-topic", 1, (short) 1),
-                new NewTopic("product-deleted-topic.DLT", 1, (short) 1)
+                new NewTopic("product-deleted-topic.DLT", 1, (short) 1),
+                new NewTopic("stock-initialized-topic", 1, (short) 1),
+                new NewTopic("stock-initialized-topic.DLT", 1, (short) 1),
+                new NewTopic("stock-replenished-topic", 1, (short) 1),
+                new NewTopic("stock-replenished-topic.DLT", 1, (short) 1)
         );
     }
 }
