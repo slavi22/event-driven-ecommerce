@@ -1,21 +1,21 @@
 package com.eventdriven.product.application.service.integration;
 
+import com.eventdriven.contracts.product.enums.ProductCategory;
+import com.eventdriven.contracts.product.event.ProductCreatedEventPayload;
+import com.eventdriven.product.adapter.out.persistence.command.postgres.ProductJpaRepository;
 import com.eventdriven.product.adapter.out.persistence.command.postgres.outbox.OutboxEventEntity;
 import com.eventdriven.product.adapter.out.persistence.command.postgres.outbox.OutboxEventJpaRepository;
-import com.eventdriven.product.adapter.out.persistence.command.postgres.ProductJpaRepository;
 import com.eventdriven.product.application.command.CreateProductCommand;
 import com.eventdriven.product.application.port.in.command.CreateProductUseCase;
 import com.eventdriven.product.application.port.out.persistence.outbox.SaveOutboxEventPort;
 import com.eventdriven.product.config.ProductTestConfiguration;
-import com.eventdriven.product.domain.event.ProductCreatedEventPayload;
-import com.eventdriven.product.domain.valueobject.ProductCategory;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -41,24 +41,17 @@ import static org.mockito.Mockito.doThrow;
 class CreateProductIntegrationTest {
 
     @Container
-    static PostgreSQLContainer<?> commandDb =
+    @ServiceConnection
+    static PostgreSQLContainer<?> db =
             new PostgreSQLContainer<>(DockerImageName.parse("postgres:18.3")).withDatabaseName("product");
 
-    @Container
-    static PostgreSQLContainer<?> queryDb =
-            new PostgreSQLContainer<>(DockerImageName.parse("postgres:18.3")).withDatabaseName("product");
 
     @Container
     static KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("apache/kafka:4.2.0"));
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.command.jdbc-url", commandDb::getJdbcUrl);
-        registry.add("spring.datasource.command.username", commandDb::getUsername);
-        registry.add("spring.datasource.command.password", commandDb::getPassword);
-        registry.add("spring.datasource.query.jdbc-url", queryDb::getJdbcUrl);
-        registry.add("spring.datasource.query.username", queryDb::getUsername);
-        registry.add("spring.datasource.query.password", queryDb::getPassword);
+        // we need dynamically property source, since if i @ServiceConnection it won't pick up our topics defined in the ProductTestConfiguration
         registry.add("spring.kafka.bootstrap-servers", kafkaContainer::getBootstrapServers);
     }
 
@@ -75,11 +68,6 @@ class CreateProductIntegrationTest {
     void clean() {
         outboxEventJpaRepository.deleteAll();
         productJpaRepository.deleteAll();
-    }
-
-    @BeforeAll
-    static void setupTestTopic() {
-
     }
 
     @Test

@@ -7,9 +7,9 @@ import com.eventdriven.product.application.port.out.persistence.outbox.SaveOutbo
 import com.eventdriven.product.application.port.out.persistence.command.SaveProductPort;
 import com.eventdriven.product.application.service.command.CreateProductService;
 import com.eventdriven.product.domain.entity.Product;
-import com.eventdriven.product.domain.event.ProductCreatedEventPayload;
+import com.eventdriven.contracts.product.event.ProductCreatedEventPayload;
+import com.eventdriven.contracts.product.enums.ProductCategory;
 import com.eventdriven.product.domain.exception.ProductDomainException;
-import com.eventdriven.product.domain.valueobject.ProductCategory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

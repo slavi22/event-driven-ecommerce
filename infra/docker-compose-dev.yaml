@@ -115,29 +115,29 @@ services:
     container_name: command-db
     environment:
       - POSTGRES_DB=command
-      - POSTGRES_USER=${COMMAND_DB_USER}
-      - POSTGRES_PASSWORD=${COMMAND_DB_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_COMMAND_DB_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_COMMAND_DB_PASSWORD}
     ports:
       - "5432:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${COMMAND_DB_USER} -d command" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_COMMAND_DB_USER} -d command" ]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - services_network
 
-  query-db:
+  projection-db:
     image: postgres:18.3
-    container_name: query-db
+    container_name: projection-db
     environment:
-      - POSTGRES_DB=query
-      - POSTGRES_USER=${QUERY_DB_USER}
-      - POSTGRES_PASSWORD=${QUERY_DB_PASSWORD}
+      - POSTGRES_DB=projection
+      - POSTGRES_USER=${POSTGRES_PROJECTION_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PROJECTION_PASSWORD}
     ports:
-      - "5433:5432"
+      - "5434:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${QUERY_DB_USER} -d query" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_PROJECTION_USER} -d projection" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -157,12 +157,8 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - POSTGRES_COMMAND_USER=${COMMAND_DB_USER}
       - POSTGRES_COMMAND_PASSWORD=${COMMAND_DB_PASSWORD}
-      - POSTGRES_QUERY_USER=${QUERY_DB_USER}
-      - POSTGRES_QUERY_PASSWORD=${QUERY_DB_PASSWORD}
     depends_on:
       command-db:
-        condition: service_healthy
-      query-db:
         condition: service_healthy
       kafka-broker-1:
         condition: service_started

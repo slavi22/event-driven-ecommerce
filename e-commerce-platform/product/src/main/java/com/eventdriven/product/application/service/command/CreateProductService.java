@@ -8,7 +8,7 @@ import com.eventdriven.product.application.port.in.command.CreateProductUseCase;
 import com.eventdriven.product.application.port.out.persistence.outbox.SaveOutboxEventPort;
 import com.eventdriven.product.application.port.out.persistence.command.SaveProductPort;
 import com.eventdriven.product.domain.entity.Product;
-import com.eventdriven.product.domain.event.ProductCreatedEventPayload;
+import com.eventdriven.contracts.product.event.ProductCreatedEventPayload;
 import com.eventdriven.product.domain.valueobject.Money;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

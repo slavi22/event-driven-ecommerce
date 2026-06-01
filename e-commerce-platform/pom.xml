@@ -13,6 +13,8 @@
         <module>notification</module>
         <module>api-gateway</module>
         <module>common</module>
+        <module>contracts</module>
+        <module>projection</module>
     </modules>
 
     <groupId>com.eventdriven</groupId>
@@ -107,6 +109,11 @@
             <dependency>
                 <groupId>com.eventdriven</groupId>
                 <artifactId>common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.eventdriven</groupId>
+                <artifactId>contracts</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

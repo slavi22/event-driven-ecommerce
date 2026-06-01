@@ -1,5 +1,7 @@
 package com.eventdriven.product.domain.valueobject;
 
+import com.eventdriven.product.domain.exception.ProductDomainException;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -8,7 +10,7 @@ public class Money {
 
     public static Money of(BigDecimal amount) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Amount must be non-negative");
+            throw new ProductDomainException("Amount must be non-negative");
         }
         return new Money(amount);
     }
@@ -23,7 +25,7 @@ public class Money {
 
     public Money subtract(Money other) {
         if (this.amount.compareTo(other.amount) < 0) {
-            throw new IllegalArgumentException("Resulting amount cannot be negative");
+            throw new ProductDomainException("Resulting amount cannot be negative");
         }
         return of(this.amount.subtract(other.amount));
     }

@@ -1,0 +1,17 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        hbm2ddl:
+          create_namespaces: true
+  main:
+    allow-bean-definition-overriding: true
+  liquibase:
+    enabled: false
+
+app:
+  scheduling:
+    enabled: false
+    stock: 10000

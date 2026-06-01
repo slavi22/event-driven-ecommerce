@@ -8,11 +8,11 @@ import com.eventdriven.product.application.port.out.persistence.outbox.OutboxEve
 import com.eventdriven.product.application.port.out.persistence.outbox.SaveOutboxEventPort;
 import com.eventdriven.product.application.service.command.DeleteProductService;
 import com.eventdriven.product.domain.entity.Product;
-import com.eventdriven.product.domain.event.ProductDeletedEventPayload;
+import com.eventdriven.contracts.product.event.ProductDeletedEventPayload;
+import com.eventdriven.contracts.product.enums.ProductCategory;
+import com.eventdriven.contracts.product.enums.ProductStatus;
 import com.eventdriven.product.domain.valueobject.Money;
-import com.eventdriven.product.domain.valueobject.ProductCategory;
 import com.eventdriven.product.domain.valueobject.ProductId;
-import com.eventdriven.product.domain.valueobject.ProductStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +23,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -51,7 +52,7 @@ class DeleteProductServiceTest {
         Product existingProduct = buildExistingProduct();
         DeleteProductCommand command = new DeleteProductCommand(existingProduct.getId().getValue());
 
-        when(getProductCommandPort.getProductByProductId(any(ProductId.class))).thenReturn(existingProduct);
+        when(getProductCommandPort.getProductByProductId(any(ProductId.class))).thenReturn(Optional.of(existingProduct));
 
         // Act
         deleteProductService.deleteProduct(command);
@@ -64,12 +65,11 @@ class DeleteProductServiceTest {
 
     @Test
     @DisplayName("Deleting a product that does not exist should throw ProductNotFoundException")
-    void testDeleteProduct_whenProductNotFound_shouldThrowException() {
+    void testDeleteProduct_whenProductNotFound_shouldThrowProductNotFoundException() {
         // Arrange
         DeleteProductCommand command = new DeleteProductCommand(UUID.randomUUID());
 
-        when(getProductCommandPort.getProductByProductId(any(ProductId.class)))
-                .thenThrow(new ProductNotFoundException("Product not found"));
+        when(getProductCommandPort.getProductByProductId(any(ProductId.class))).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(ProductNotFoundException.class, () -> deleteProductService.deleteProduct(command));
