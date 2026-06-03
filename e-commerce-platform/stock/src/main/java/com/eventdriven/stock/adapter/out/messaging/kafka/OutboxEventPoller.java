@@ -2,7 +2,9 @@ package com.eventdriven.stock.adapter.out.messaging.kafka;
 
 import com.eventdriven.contracts.stock.event.StockDepletedEventPayload;
 import com.eventdriven.contracts.stock.event.StockInitializedEventPayload;
+import com.eventdriven.contracts.stock.event.StockReleasedEventPayload;
 import com.eventdriven.contracts.stock.event.StockReplenishedEventPayload;
+import com.eventdriven.contracts.stock.event.StockReservationFailedEventPayload;
 import com.eventdriven.contracts.stock.event.StockReservedEventPayload;
 import com.eventdriven.stock.adapter.out.messaging.kafka.config.KafkaTopicProperties;
 import com.eventdriven.stock.adapter.out.persistence.command.postgres.outbox.OutboxEventEntity;
@@ -54,6 +56,8 @@ public class OutboxEventPoller {
             case StockInitializedEventPayload.EVENT_TYPE -> kafkaTopicProperties.getStockInitializedTopic();
             case StockReplenishedEventPayload.EVENT_TYPE -> kafkaTopicProperties.getStockReplenishedTopic();
             case StockReservedEventPayload.EVENT_TYPE -> kafkaTopicProperties.getStockReservedTopic();
+            case StockReservationFailedEventPayload.EVENT_TYPE -> kafkaTopicProperties.getStockReservationFailedTopic();
+            case StockReleasedEventPayload.EVENT_TYPE -> kafkaTopicProperties.getStockReleasedTopic();
             case StockDepletedEventPayload.EVENT_TYPE -> kafkaTopicProperties.getStockDepletedTopic();
             default -> throw new IllegalArgumentException("Unknown event type: " + eventType);
         };

@@ -5,6 +5,7 @@ import com.eventdriven.projection.stock.application.port.out.query.GetStockQuery
 import com.eventdriven.projection.stock.application.port.out.query.UpdateStockQueryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -40,19 +41,13 @@ public class StockReplenishedKafkaListener {
                 payload.productId(), payload.newQuantity());
     }
 
-    @KafkaListener(
-            topics = "${kafka.topics.stock-replenished-topic}.DLT",
-            groupId = "${kafka.config.consumer.groups.stock-replenished-events-group}.dlt",
-            properties = "spring.json.value.default.type=com.eventdriven.contracts.stock.event.StockReplenishedEventPayload"
-    )
+    @DltHandler
     public void onStockReplenishedDlt(
             @Payload StockReplenishedEventPayload payload,
             @Header(KafkaHeaders.DLT_EXCEPTION_MESSAGE) String errorMessage,
             @Header(KafkaHeaders.DLT_EXCEPTION_FQCN) String exceptionClass,
-            @Header(KafkaHeaders.DLT_ORIGINAL_TOPIC) String originalTopic,
-            @Header(KafkaHeaders.DLT_ORIGINAL_OFFSET) long originalOffset) {
-        log.error("DLT: Failed to process StockReplenishedEvent for product: {} | " +
-                  "originalTopic: {}, offset: {}, exception: {} - {}",
-                payload.productId(), originalTopic, originalOffset, exceptionClass, errorMessage);
+            @Header(KafkaHeaders.DLT_ORIGINAL_TOPIC) String originalTopic) {
+        log.error("DLT: Failed to process StockReplenishedEvent for product: {}, originalTopic: {}, exception: {} - {}",
+                payload.productId(), originalTopic, exceptionClass, errorMessage);
     }
 }

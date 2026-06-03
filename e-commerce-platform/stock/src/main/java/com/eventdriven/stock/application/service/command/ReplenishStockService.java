@@ -4,6 +4,7 @@ import com.eventdriven.contracts.stock.event.StockReplenishedEventPayload;
 import com.eventdriven.stock.application.command.ReplenishStockCommand;
 import com.eventdriven.stock.application.dto.ReplenishStockResult;
 import com.eventdriven.stock.application.exception.StockNotFoundException;
+import com.eventdriven.stock.application.mapper.StockApplicationMapper;
 import com.eventdriven.stock.application.port.in.ReplenishStockUseCase;
 import com.eventdriven.stock.application.port.out.command.GetStockCommandPort;
 import com.eventdriven.stock.application.port.out.command.UpdateStockPort;
@@ -26,6 +27,7 @@ class ReplenishStockService implements ReplenishStockUseCase {
     private final GetStockCommandPort getStockCommandPort;
     private final UpdateStockPort updateStockPort;
     private final SaveOutboxEventPort saveOutboxEventPort;
+    private final StockApplicationMapper stockApplicationMapper;
     private final JsonMapper jsonMapper;
 
     @Override
@@ -59,6 +61,6 @@ class ReplenishStockService implements ReplenishStockUseCase {
                 Instant.now()
         ));
         log.info("Stock for product with id: {} saved to outbox table successfully", command.productId());
-        return new ReplenishStockResult(updatedStock.getProductId(), updatedStock.getQuantity().getValue());
+        return stockApplicationMapper.toReplenishStockResult(updatedStock);
     }
 }

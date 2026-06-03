@@ -1,6 +1,7 @@
 package com.eventdriven.stock.application.service.command;
 
 import com.eventdriven.contracts.stock.event.StockDepletedEventPayload;
+import com.eventdriven.contracts.stock.event.StockReservationFailedEventPayload;
 import com.eventdriven.contracts.stock.event.StockReservedEventPayload;
 import com.eventdriven.stock.application.command.ReserveStockCommand;
 import com.eventdriven.stock.application.exception.StockNotFoundException;
@@ -10,6 +11,7 @@ import com.eventdriven.stock.application.port.out.command.UpdateStockPort;
 import com.eventdriven.stock.application.port.out.outbox.OutboxEvent;
 import com.eventdriven.stock.application.port.out.outbox.SaveOutboxEventPort;
 import com.eventdriven.stock.domain.entity.Stock;
+import com.eventdriven.stock.domain.exception.StockDomainException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -38,7 +40,25 @@ class ReserveStockService implements ReserveStockUseCase {
                 .orElseThrow(() -> new StockNotFoundException(
                         "Stock for product with id " + command.productId() + " not found!"));
 
-        stock.reserve(command.amount());
+        try {
+            stock.reserve(command.amount());
+        } catch (StockDomainException e) {
+            log.warn("Stock reservation failed for product {} (order {}): {}",
+                    command.productId(), command.orderId(), e.getMessage());
+            saveOutboxEventPort.save(new OutboxEvent(
+                    stock.getId().getValue().toString(),
+                    StockReservationFailedEventPayload.AGGREGATE_TYPE,
+                    StockReservationFailedEventPayload.EVENT_TYPE,
+                    jsonMapper.writeValueAsString(new StockReservationFailedEventPayload(
+                            command.orderId().toString(),
+                            command.productId().toString(),
+                            e.getMessage(),
+                            Instant.now()
+                    )),
+                    Instant.now()
+            ));
+            return;
+        }
 
         Stock updatedStock = updateStockPort.update(stock);
         log.info("Reserved {} units for product {}, remaining quantity: {}",

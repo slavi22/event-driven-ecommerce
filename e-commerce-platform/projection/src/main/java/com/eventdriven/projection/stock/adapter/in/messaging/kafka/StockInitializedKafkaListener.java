@@ -5,6 +5,7 @@ import com.eventdriven.projection.stock.application.port.out.query.GetStockQuery
 import com.eventdriven.projection.stock.application.port.out.query.SaveStockQueryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -39,19 +40,13 @@ public class StockInitializedKafkaListener {
         log.info("Stock read model created for product: {}", payload.productId());
     }
 
-    @KafkaListener(
-            topics = "${kafka.topics.stock-initialized-topic}.DLT",
-            groupId = "${kafka.config.consumer.groups.stock-initialized-events-group}.dlt",
-            properties = "spring.json.value.default.type=com.eventdriven.contracts.stock.event.StockInitializedEventPayload"
-    )
+    @DltHandler
     public void onStockInitializedDlt(
             @Payload StockInitializedEventPayload payload,
             @Header(KafkaHeaders.DLT_EXCEPTION_MESSAGE) String errorMessage,
             @Header(KafkaHeaders.DLT_EXCEPTION_FQCN) String exceptionClass,
-            @Header(KafkaHeaders.DLT_ORIGINAL_TOPIC) String originalTopic,
-            @Header(KafkaHeaders.DLT_ORIGINAL_OFFSET) long originalOffset) {
-        log.error("DLT: Failed to process StockInitializedEvent for product: {} | " +
-                  "originalTopic: {}, offset: {}, exception: {} - {}",
-                payload.productId(), originalTopic, originalOffset, exceptionClass, errorMessage);
+            @Header(KafkaHeaders.DLT_ORIGINAL_TOPIC) String originalTopic) {
+        log.error("DLT: Failed to process StockInitializedEvent for product: {}, originalTopic: {}, exception: {} - {}",
+                payload.productId(), originalTopic, exceptionClass, errorMessage);
     }
 }

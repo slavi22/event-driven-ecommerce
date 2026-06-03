@@ -23,5 +23,8 @@ class KafkaConsumerProperties {
         private String productDeletedEventsGroup;
         private String stockInitializedEventsGroup;
         private String stockReplenishedEventsGroup;
+        private String orderPlacedEventsGroup;
+        private String orderConfirmedEventsGroup;
+        private String orderCancelledEventsGroup;
     }
 }

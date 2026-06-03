@@ -2,6 +2,7 @@ package com.eventdriven.stock.application.service.command;
 
 import com.eventdriven.stock.application.command.ReplenishStockCommand;
 import com.eventdriven.stock.application.exception.StockNotFoundException;
+import com.eventdriven.stock.application.mapper.StockApplicationMapper;
 import com.eventdriven.stock.application.port.out.command.GetStockCommandPort;
 import com.eventdriven.stock.application.port.out.command.UpdateStockPort;
 import com.eventdriven.stock.application.port.out.outbox.OutboxEvent;
@@ -35,6 +36,8 @@ class ReplenishStockServiceTest {
     @Mock
     private SaveOutboxEventPort saveOutboxEventPort;
     @Mock
+    private StockApplicationMapper stockApplicationMapper;
+    @Mock
     private JsonMapper jsonMapper;
 
     @InjectMocks
@@ -63,10 +66,10 @@ class ReplenishStockServiceTest {
         // Arrange
         UUID productId = UUID.randomUUID();
         when(getStockCommandPort.getStockByProductId(productId)).thenReturn(Optional.empty());
+        ReplenishStockCommand command = new ReplenishStockCommand(productId, 10);
 
         // Act & Assert
-        assertThrows(StockNotFoundException.class,
-                () -> replenishStockService.replenishStock(new ReplenishStockCommand(productId, 10)));
+        assertThrows(StockNotFoundException.class, () -> replenishStockService.replenishStock(command));
 
         verify(updateStockPort, never()).update(any(Stock.class));
         verify(saveOutboxEventPort, never()).save(any(OutboxEvent.class));

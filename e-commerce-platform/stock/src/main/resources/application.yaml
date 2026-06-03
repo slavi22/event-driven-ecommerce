@@ -8,7 +8,11 @@ kafka:
     stock-initialized-topic: stock-initialized-topic
     stock-replenished-topic: stock-replenished-topic
     stock-reserved-topic: stock-reserved-topic
+    stock-reservation-failed-topic: stock-reservation-failed-topic
+    stock-released-topic: stock-released-topic
     stock-depleted-topic: stock-depleted-topic
+    order-placed-topic: order-placed-topic
+    order-cancelled-topic: order-cancelled-topic
   config:
     producer:
       idempotency-enabled: true
@@ -18,6 +22,8 @@ kafka:
     consumer:
       groups:
         product-created-events-group: stock-product-created-group
+        order-placed-events-group: stock-order-placed-group
+        order-cancelled-events-group: stock-order-cancelled-group
       auto-offset: earliest
       json-deserializer-trusted-packages: com.eventdriven.contracts.product.event,com.eventdriven.contracts.order.event
 

@@ -120,7 +120,6 @@
         <dependency>
             <groupId>com.github.dasniko</groupId>
             <artifactId>testcontainers-keycloak</artifactId>
-            <version>4.2.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

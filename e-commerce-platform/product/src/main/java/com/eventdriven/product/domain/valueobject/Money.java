@@ -3,7 +3,6 @@ package com.eventdriven.product.domain.valueobject;
 import com.eventdriven.product.domain.exception.ProductDomainException;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 public class Money {
     private final BigDecimal amount;
@@ -42,11 +41,11 @@ public class Money {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Money money = (Money) o;
-        return Objects.equals(amount, money.amount);
+        return amount.compareTo(money.amount) == 0;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(amount);
+        return amount.stripTrailingZeros().hashCode();
     }
 }
