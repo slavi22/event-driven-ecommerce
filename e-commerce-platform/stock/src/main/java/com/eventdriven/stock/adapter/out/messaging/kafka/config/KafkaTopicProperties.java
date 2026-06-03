@@ -15,5 +15,9 @@ public class KafkaTopicProperties {
     private String stockInitializedTopic;
     private String stockReplenishedTopic;
     private String stockReservedTopic;
+    private String stockReservationFailedTopic;
+    private String stockReleasedTopic;
     private String stockDepletedTopic;
+    private String orderPlacedTopic;
+    private String orderCancelledTopic;
 }

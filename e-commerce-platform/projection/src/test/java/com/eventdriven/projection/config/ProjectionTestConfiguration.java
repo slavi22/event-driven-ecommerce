@@ -20,7 +20,13 @@ public class ProjectionTestConfiguration {
                 new NewTopic("stock-initialized-topic", 1, (short) 1),
                 new NewTopic("stock-initialized-topic.DLT", 1, (short) 1),
                 new NewTopic("stock-replenished-topic", 1, (short) 1),
-                new NewTopic("stock-replenished-topic.DLT", 1, (short) 1)
+                new NewTopic("stock-replenished-topic.DLT", 1, (short) 1),
+                new NewTopic("order-placed-topic", 1, (short) 1),
+                new NewTopic("order-placed-topic.DLT", 1, (short) 1),
+                new NewTopic("order-confirmed-topic", 1, (short) 1),
+                new NewTopic("order-confirmed-topic.DLT", 1, (short) 1),
+                new NewTopic("order-cancelled-topic", 1, (short) 1),
+                new NewTopic("order-cancelled-topic.DLT", 1, (short) 1)
         );
     }
 }

@@ -11,6 +11,9 @@ kafka:
     product-deleted-topic: product-deleted-topic
     stock-initialized-topic: stock-initialized-topic
     stock-replenished-topic: stock-replenished-topic
+    order-placed-topic: order-placed-topic
+    order-confirmed-topic: order-confirmed-topic
+    order-cancelled-topic: order-cancelled-topic
   config:
     consumer:
       groups:
@@ -19,5 +22,8 @@ kafka:
         product-deleted-events-group: projection-product-deleted-group
         stock-initialized-events-group: projection-stock-initialized-group
         stock-replenished-events-group: projection-stock-replenished-group
+        order-placed-events-group: projection-order-placed-group
+        order-confirmed-events-group: projection-order-confirmed-group
+        order-cancelled-events-group: projection-order-cancelled-group
       auto-offset: earliest
-      json-deserializer-trusted-packages: com.eventdriven.contracts.product.event,com.eventdriven.contracts.stock.event
+      json-deserializer-trusted-packages: com.eventdriven.contracts.product.event,com.eventdriven.contracts.stock.event,com.eventdriven.contracts.order.event

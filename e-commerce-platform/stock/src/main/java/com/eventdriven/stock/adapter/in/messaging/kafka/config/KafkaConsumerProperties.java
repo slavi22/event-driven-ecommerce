@@ -18,5 +18,7 @@ class KafkaConsumerProperties {
     @Setter
     public static class Groups {
         private String productCreatedEventsGroup;
+        private String orderPlacedEventsGroup;
+        private String orderCancelledEventsGroup;
     }
 }

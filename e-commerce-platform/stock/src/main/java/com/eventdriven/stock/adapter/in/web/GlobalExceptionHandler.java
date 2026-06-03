@@ -5,57 +5,52 @@ import com.eventdriven.stock.domain.exception.StockDomainException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
 
     @ExceptionHandler(StockNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    ProblemDetail handleStockNotFound(StockNotFoundException e) {
+    ResponseEntity<ProblemDetail> handleStockNotFound(StockNotFoundException e) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
         problemDetail.setTitle("Stock Not Found");
-        return problemDetail;
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail);
     }
 
     @ExceptionHandler(StockDomainException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    ProblemDetail handleStockDomainException(StockDomainException e) {
+    ResponseEntity<ProblemDetail> handleStockDomainException(StockDomainException e) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
         problemDetail.setTitle("Bad Request");
-        return problemDetail;
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    ProblemDetail handleInvalidRequestBody(MethodArgumentNotValidException e) {
+    ResponseEntity<ProblemDetail> handleInvalidRequestBody(MethodArgumentNotValidException e) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Invalid request body");
         problemDetail.setTitle("Bad Request");
         problemDetail.setProperty("errors", e.getBindingResult().getFieldErrors().stream()
                 .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
                 .toList());
-        return problemDetail;
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    ProblemDetail handleInvalidRequestParam(ConstraintViolationException e) {
+    ResponseEntity<ProblemDetail> handleInvalidRequestParam(ConstraintViolationException e) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Invalid request parameter");
         problemDetail.setTitle("Bad Request");
         problemDetail.setProperty("errors", e.getConstraintViolations().stream()
                 .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
                 .toList());
-        return problemDetail;
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
     }
 
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    ProblemDetail handleException(Exception e) {
+    ResponseEntity<ProblemDetail> handleException(Exception e) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         problemDetail.setTitle("Internal Server Error");
-        return problemDetail;
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problemDetail);
     }
 }

@@ -44,6 +44,10 @@ class KafkaProducerConfiguration {
                 TopicBuilder.name(kafkaTopicProperties.getStockReplenishedTopic() + DLT.getValue()).partitions(3).replicas(3).build(),
                 TopicBuilder.name(kafkaTopicProperties.getStockReservedTopic()).partitions(3).replicas(3).build(),
                 TopicBuilder.name(kafkaTopicProperties.getStockReservedTopic() + DLT.getValue()).partitions(3).replicas(3).build(),
+                TopicBuilder.name(kafkaTopicProperties.getStockReservationFailedTopic()).partitions(3).replicas(3).build(),
+                TopicBuilder.name(kafkaTopicProperties.getStockReservationFailedTopic() + DLT.getValue()).partitions(3).replicas(3).build(),
+                TopicBuilder.name(kafkaTopicProperties.getStockReleasedTopic()).partitions(3).replicas(3).build(),
+                TopicBuilder.name(kafkaTopicProperties.getStockReleasedTopic() + DLT.getValue()).partitions(3).replicas(3).build(),
                 TopicBuilder.name(kafkaTopicProperties.getStockDepletedTopic()).partitions(3).replicas(3).build(),
                 TopicBuilder.name(kafkaTopicProperties.getStockDepletedTopic() + DLT.getValue()).partitions(3).replicas(3).build()
         );
