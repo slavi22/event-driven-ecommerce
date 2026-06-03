@@ -66,7 +66,7 @@ public class OrderSagaOrchestrator {
                         Instant.now())),
                 Instant.now()));
 
-        log.info("onStockReserved: order {} → STOCK_RESERVED, saga → PAYMENT", orderId);
+        log.info("onStockReserved: order {} => STOCK_RESERVED, saga => PAYMENT", orderId);
     }
 
     @Transactional
@@ -96,7 +96,7 @@ public class OrderSagaOrchestrator {
                         Instant.now())),
                 Instant.now()));
 
-        log.info("onStockReservationFailed: order {} → CANCELLED, saga → FAILED (no compensation needed)", orderId);
+        log.info("onStockReservationFailed: order {} => CANCELLED, saga => FAILED (no compensation needed)", orderId);
     }
 
     @Transactional
@@ -123,7 +123,7 @@ public class OrderSagaOrchestrator {
                         Instant.now())),
                 Instant.now()));
 
-        log.info("onPaymentProcessed: order {} → CONFIRMED, saga → COMPLETED", orderId);
+        log.info("onPaymentProcessed: order {} => CONFIRMED, saga => COMPLETED", orderId);
     }
 
     @Transactional
@@ -153,7 +153,7 @@ public class OrderSagaOrchestrator {
                         Instant.now())),
                 Instant.now()));
 
-        log.info("onPaymentFailed: order {} → CANCELLING, saga → COMPENSATING_STOCK", orderId);
+        log.info("onPaymentFailed: order {} => CANCELLING, saga => COMPENSATING_STOCK", orderId);
     }
 
     @Transactional
@@ -171,7 +171,7 @@ public class OrderSagaOrchestrator {
         updateOrderPort.update(order);
         updateSagaStatePort.update(orderId, SagaStep.COMPENSATING_STOCK, SagaStatus.FAILED);
 
-        log.info("onStockReleased: order {} → CANCELLED, saga → FAILED (compensation complete)", orderId);
+        log.info("onStockReleased: order {} => CANCELLED, saga => FAILED (compensation complete)", orderId);
     }
 
     private List<OrderItemPayload> toItemPayloads(Order order) {
