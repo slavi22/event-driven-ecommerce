@@ -12,5 +12,5 @@ import org.springframework.stereotype.Component;
 class AppSchedulingProperties {
 
     private boolean enabled;
-    private long order;
+    private long payment;
 }

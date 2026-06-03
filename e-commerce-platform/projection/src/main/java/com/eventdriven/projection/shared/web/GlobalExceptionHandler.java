@@ -1,6 +1,7 @@
 package com.eventdriven.projection.shared.web;
 
 import com.eventdriven.projection.order.application.exception.OrderNotFoundException;
+import com.eventdriven.projection.payment.application.exception.PaymentNotFoundException;
 import com.eventdriven.projection.product.application.exception.ProductNotFoundException;
 import com.eventdriven.projection.stock.application.exception.StockNotFoundException;
 import jakarta.validation.ConstraintViolationException;
@@ -30,6 +31,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(OrderNotFoundException.class)
     ResponseEntity<ProblemDetail> handleOrderNotFound(OrderNotFoundException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+        problemDetail.setTitle("Not Found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail);
+    }
+
+    @ExceptionHandler(PaymentNotFoundException.class)
+    ResponseEntity<ProblemDetail> handlePaymentNotFound(PaymentNotFoundException e) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
         problemDetail.setTitle("Not Found");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail);
