@@ -26,7 +26,11 @@ public class ProjectionTestConfiguration {
                 new NewTopic("order-confirmed-topic", 1, (short) 1),
                 new NewTopic("order-confirmed-topic.DLT", 1, (short) 1),
                 new NewTopic("order-cancelled-topic", 1, (short) 1),
-                new NewTopic("order-cancelled-topic.DLT", 1, (short) 1)
+                new NewTopic("order-cancelled-topic.DLT", 1, (short) 1),
+                new NewTopic("payment-processed-topic", 1, (short) 1),
+                new NewTopic("payment-processed-topic.DLT", 1, (short) 1),
+                new NewTopic("payment-failed-topic", 1, (short) 1),
+                new NewTopic("payment-failed-topic.DLT", 1, (short) 1)
         );
     }
 }

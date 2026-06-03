@@ -14,6 +14,8 @@ kafka:
     order-placed-topic: order-placed-topic
     order-confirmed-topic: order-confirmed-topic
     order-cancelled-topic: order-cancelled-topic
+    payment-processed-topic: payment-processed-topic
+    payment-failed-topic: payment-failed-topic
   config:
     consumer:
       groups:
@@ -25,5 +27,7 @@ kafka:
         order-placed-events-group: projection-order-placed-group
         order-confirmed-events-group: projection-order-confirmed-group
         order-cancelled-events-group: projection-order-cancelled-group
+        payment-processed-events-group: projection-payment-processed-group
+        payment-failed-events-group: projection-payment-failed-group
       auto-offset: earliest
-      json-deserializer-trusted-packages: com.eventdriven.contracts.product.event,com.eventdriven.contracts.stock.event,com.eventdriven.contracts.order.event
+      json-deserializer-trusted-packages: com.eventdriven.contracts.product.event,com.eventdriven.contracts.stock.event,com.eventdriven.contracts.order.event,com.eventdriven.contracts.payment.event

@@ -26,5 +26,7 @@ class KafkaConsumerProperties {
         private String orderPlacedEventsGroup;
         private String orderConfirmedEventsGroup;
         private String orderCancelledEventsGroup;
+        private String paymentProcessedEventsGroup;
+        private String paymentFailedEventsGroup;
     }
 }
