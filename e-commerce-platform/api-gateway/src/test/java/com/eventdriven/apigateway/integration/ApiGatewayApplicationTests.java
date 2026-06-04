@@ -45,7 +45,7 @@ class ApiGatewayApplicationTests {
     @DynamicPropertySource
     static void registerKeycloakProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.security.oauth2.resourceserver.jwt.issuer-uri",
-                     () -> keycloakContainer.getAuthServerUrl() + "/realms/e-commerce-realm");
+                     () -> keycloakContainer.getAuthServerUrl() + "/realms/e-commerce");
     }
 
     @Test
@@ -76,7 +76,7 @@ class ApiGatewayApplicationTests {
         // Arrange
         String url = "/some/protected/route";
         URI authorizationURI = new URIBuilder(keycloakContainer.getAuthServerUrl() +
-                                              "/realms/e-commerce-realm/protocol/openid-connect/token").build();
+                                              "/realms/e-commerce/protocol/openid-connect/token").build();
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.put("grant_type", Collections.singletonList("password"));

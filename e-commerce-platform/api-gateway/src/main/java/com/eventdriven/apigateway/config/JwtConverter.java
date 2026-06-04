@@ -54,7 +54,6 @@ public class JwtConverter implements Converter<Jwt, AbstractAuthenticationToken>
         resource = (Map<String, Object>) resourceAccess.get(oAuth2JwtConfigurationProperties.getClientId());
         resourceRoles = (Collection<String>) resource.get("roles");
 
-        // TODO: fix because right now its "ROLE_role_customer"
         return resourceRoles
                 .stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role))

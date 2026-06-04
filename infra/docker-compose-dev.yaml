@@ -5,6 +5,11 @@ services:
   keycloak_db:
     image: postgres:18.3
     container_name: keycloak-db
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${KEYCLOAK_POSTGRES_USER} -d keycloak" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - ./keycloak_data:/var/lib/postgresql/18/docker
     environment:
@@ -27,7 +32,8 @@ services:
     ports:
       - "8000:8080"
     depends_on:
-      - keycloak_db
+      keycloak_db:
+        condition: service_healthy
     command: 'start-dev'
     networks:
       - keycloak_network
@@ -132,12 +138,12 @@ services:
     container_name: projection-db
     environment:
       - POSTGRES_DB=projection
-      - POSTGRES_USER=${POSTGRES_PROJECTION_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PROJECTION_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_PROJECTION_DB_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PROJECTION_DB_PASSWORD}
     ports:
       - "5434:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_PROJECTION_USER} -d projection" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_COMMAND_DB_USER} -d projection" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -146,19 +152,132 @@ services:
 
   ### services
 
+  api-gateway:
+    build:
+      context: ../e-commerce-platform
+      dockerfile: api-gateway/Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - RESOURCE_SERVER_ISSUER_URI=${RESOURCE_SERVER_ISSUER_URI}
+      - RESOURCE_SERVER_JWK_SET_URI=${RESOURCE_SERVER_JWK_SET_URI}
+      - OAUTH2_CLIENT_ID=${OAUTH2_CLIENT_ID}
+    depends_on:
+      - keycloak
+    networks:
+      - services_network
+      - keycloak_network
+
   product:
     build:
       context: ../e-commerce-platform
       dockerfile: product/Dockerfile
     container_name: product
     ports:
-      - "8080:8080"
+      - "8081:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - POSTGRES_COMMAND_USER=${COMMAND_DB_USER}
-      - POSTGRES_COMMAND_PASSWORD=${COMMAND_DB_PASSWORD}
+      - POSTGRES_COMMAND_USER=${POSTGRES_COMMAND_DB_USER}
+      - POSTGRES_COMMAND_PASSWORD=${POSTGRES_COMMAND_DB_PASSWORD}
     depends_on:
       command-db:
+        condition: service_healthy
+      kafka-broker-1:
+        condition: service_started
+    networks:
+      - services_network
+      - kafka_network
+
+  order:
+    build:
+      context: ../e-commerce-platform
+      dockerfile: order/Dockerfile
+    container_name: order
+    ports:
+      - "8082:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - POSTGRES_COMMAND_USER=${POSTGRES_COMMAND_DB_USER}
+      - POSTGRES_COMMAND_PASSWORD=${POSTGRES_COMMAND_DB_PASSWORD}
+    depends_on:
+      command-db:
+        condition: service_healthy
+      kafka-broker-1:
+        condition: service_started
+    networks:
+      - services_network
+      - kafka_network
+
+  payment:
+    build:
+      context: ../e-commerce-platform
+      dockerfile: payment/Dockerfile
+    container_name: payment
+    ports:
+      - "8083:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - POSTGRES_COMMAND_USER=${POSTGRES_COMMAND_DB_USER}
+      - POSTGRES_COMMAND_PASSWORD=${POSTGRES_COMMAND_DB_PASSWORD}
+    depends_on:
+      command-db:
+        condition: service_healthy
+      kafka-broker-1:
+        condition: service_started
+    networks:
+      - services_network
+      - kafka_network
+
+  stock:
+    build:
+      context: ../e-commerce-platform
+      dockerfile: stock/Dockerfile
+    container_name: stock
+    ports:
+      - "8084:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - POSTGRES_COMMAND_USER=${POSTGRES_COMMAND_DB_USER}
+      - POSTGRES_COMMAND_PASSWORD=${POSTGRES_COMMAND_DB_PASSWORD}
+    depends_on:
+      command-db:
+        condition: service_healthy
+      kafka-broker-1:
+        condition: service_started
+    networks:
+      - services_network
+      - kafka_network
+
+  notification:
+    build:
+      context: ../e-commerce-platform
+      dockerfile: notification/Dockerfile
+    container_name: notification
+    ports:
+      - "8085:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      kafka-broker-1:
+        condition: service_started
+    networks:
+      - kafka_network
+
+  projection:
+    build:
+      context: ../e-commerce-platform
+      dockerfile: projection/Dockerfile
+    container_name: projection
+    ports:
+      - "8086:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - POSTGRES_COMMAND_DB_USER=${POSTGRES_PROJECTION_DB_USER}
+      - POSTGRES_PROJECTION_PASSWORD=${POSTGRES_PROJECTION_DB_PASSWORD}
+    depends_on:
+      projection-db:
         condition: service_healthy
       kafka-broker-1:
         condition: service_started
