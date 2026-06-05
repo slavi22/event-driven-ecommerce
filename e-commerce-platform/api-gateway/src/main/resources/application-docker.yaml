@@ -1,0 +1,5 @@
+services:
+  product-command-uri: http://product:8080
+  order-command-uri: http://order:8080
+  stock-command-uri: http://stock:8080
+  projection-uri: http://projection:8080

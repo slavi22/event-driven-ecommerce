@@ -10,3 +10,9 @@ oauth2:
   jwt:
     client-id: ${OAUTH2_CLIENT_ID}
     user-id-claim: preferred_username
+
+services:
+  product-command-uri: http://localhost:8081
+  order-command-uri: http://localhost:8082
+  stock-command-uri: http://localhost:8084
+  projection-uri: http://localhost:8086
