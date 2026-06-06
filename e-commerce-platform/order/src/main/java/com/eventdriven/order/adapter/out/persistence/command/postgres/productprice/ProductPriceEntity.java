@@ -21,7 +21,7 @@ class ProductPriceEntity {
     @Column(name = "product_id", nullable = false, updatable = false)
     private UUID productId;
 
-    @Column(name = "price", nullable = false, precision = 19, scale = 4)
+    @Column(name = "price", nullable = false, precision = 19, scale = 2)
     private BigDecimal price;
 
     @Column(name = "updated_at")

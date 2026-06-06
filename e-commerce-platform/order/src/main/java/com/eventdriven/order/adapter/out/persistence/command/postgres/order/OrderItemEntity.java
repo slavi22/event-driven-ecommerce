@@ -28,6 +28,6 @@ class OrderItemEntity {
     @Column(name = "quantity", nullable = false)
     private int quantity;
 
-    @Column(name = "unit_price", nullable = false, precision = 19, scale = 4)
+    @Column(name = "unit_price", nullable = false, precision = 19, scale = 2)
     private BigDecimal unitPrice;
 }

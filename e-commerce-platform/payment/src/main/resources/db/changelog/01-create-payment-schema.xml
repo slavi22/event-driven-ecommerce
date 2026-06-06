@@ -43,7 +43,7 @@
             <column name="order_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
-            <column name="amount" type="DECIMAL(19, 4)">
+            <column name="amount" type="DECIMAL(19, 2)">
                 <constraints nullable="false"/>
             </column>
             <column name="status" type="VARCHAR(255)">

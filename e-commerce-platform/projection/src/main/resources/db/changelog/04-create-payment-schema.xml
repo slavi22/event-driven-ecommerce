@@ -15,7 +15,7 @@
             <column name="order_id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_payment_read"/>
             </column>
-            <column name="amount" type="DECIMAL(19, 4)"/>
+            <column name="amount" type="DECIMAL(19, 2)"/>
             <column name="status" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>

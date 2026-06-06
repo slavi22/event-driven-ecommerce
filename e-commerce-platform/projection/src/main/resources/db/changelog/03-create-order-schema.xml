@@ -18,7 +18,7 @@
             <column name="customer_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
-            <column name="total_amount" type="DECIMAL(19, 4)">
+            <column name="total_amount" type="DECIMAL(19, 2)">
                 <constraints nullable="false"/>
             </column>
             <column name="status" type="VARCHAR(255)">

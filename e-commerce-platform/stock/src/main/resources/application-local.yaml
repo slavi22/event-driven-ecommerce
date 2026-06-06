@@ -1,3 +1,6 @@
+server:
+  port: 8083
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/command
@@ -16,3 +19,11 @@ spring:
 app:
   scheduling:
     stock: 10000
+  swagger:
+    gateway-url: ${GATEWAY_URL}
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true

@@ -141,7 +141,7 @@ services:
       - POSTGRES_USER=${POSTGRES_PROJECTION_DB_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PROJECTION_DB_PASSWORD}
     ports:
-      - "5434:5432"
+      - "5433:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_COMMAND_DB_USER} -d projection" ]
       interval: 10s
@@ -164,6 +164,9 @@ services:
       - RESOURCE_SERVER_ISSUER_URI=${RESOURCE_SERVER_ISSUER_URI}
       - RESOURCE_SERVER_JWK_SET_URI=${RESOURCE_SERVER_JWK_SET_URI}
       - OAUTH2_CLIENT_ID=${OAUTH2_CLIENT_ID}
+      - KEYCLOAK_AUTH_SERVER_URL=${KEYCLOAK_AUTH_SERVER_URL}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+      - GATEWAY_URL=${GATEWAY_URL}
     depends_on:
       - keycloak
     networks:
@@ -181,6 +184,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - POSTGRES_COMMAND_USER=${POSTGRES_COMMAND_DB_USER}
       - POSTGRES_COMMAND_PASSWORD=${POSTGRES_COMMAND_DB_PASSWORD}
+      - GATEWAY_URL=${GATEWAY_URL}
     depends_on:
       command-db:
         condition: service_healthy
@@ -201,26 +205,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - POSTGRES_COMMAND_USER=${POSTGRES_COMMAND_DB_USER}
       - POSTGRES_COMMAND_PASSWORD=${POSTGRES_COMMAND_DB_PASSWORD}
-    depends_on:
-      command-db:
-        condition: service_healthy
-      kafka-broker-1:
-        condition: service_started
-    networks:
-      - services_network
-      - kafka_network
-
-  payment:
-    build:
-      context: ../e-commerce-platform
-      dockerfile: payment/Dockerfile
-    container_name: payment
-    ports:
-      - "8083:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - POSTGRES_COMMAND_USER=${POSTGRES_COMMAND_DB_USER}
-      - POSTGRES_COMMAND_PASSWORD=${POSTGRES_COMMAND_DB_PASSWORD}
+      - GATEWAY_URL=${GATEWAY_URL}
     depends_on:
       command-db:
         condition: service_healthy
@@ -236,7 +221,49 @@ services:
       dockerfile: stock/Dockerfile
     container_name: stock
     ports:
+      - "8083:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - POSTGRES_COMMAND_USER=${POSTGRES_COMMAND_DB_USER}
+      - POSTGRES_COMMAND_PASSWORD=${POSTGRES_COMMAND_DB_PASSWORD}
+      - GATEWAY_URL=${GATEWAY_URL}
+    depends_on:
+      command-db:
+        condition: service_healthy
+      kafka-broker-1:
+        condition: service_started
+    networks:
+      - services_network
+      - kafka_network
+
+  projection:
+    build:
+      context: ../e-commerce-platform
+      dockerfile: projection/Dockerfile
+    container_name: projection
+    ports:
       - "8084:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - POSTGRES_COMMAND_DB_USER=${POSTGRES_PROJECTION_DB_USER}
+      - POSTGRES_PROJECTION_PASSWORD=${POSTGRES_PROJECTION_DB_PASSWORD}
+      - GATEWAY_URL=${GATEWAY_URL}
+    depends_on:
+      projection-db:
+        condition: service_healthy
+      kafka-broker-1:
+        condition: service_started
+    networks:
+      - services_network
+      - kafka_network
+
+  payment:
+    build:
+      context: ../e-commerce-platform
+      dockerfile: payment/Dockerfile
+    container_name: payment
+    ports:
+      - "8085:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - POSTGRES_COMMAND_USER=${POSTGRES_COMMAND_DB_USER}
@@ -256,33 +283,13 @@ services:
       dockerfile: notification/Dockerfile
     container_name: notification
     ports:
-      - "8085:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    depends_on:
-      kafka-broker-1:
-        condition: service_started
-    networks:
-      - kafka_network
-
-  projection:
-    build:
-      context: ../e-commerce-platform
-      dockerfile: projection/Dockerfile
-    container_name: projection
-    ports:
       - "8086:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - POSTGRES_COMMAND_DB_USER=${POSTGRES_PROJECTION_DB_USER}
-      - POSTGRES_PROJECTION_PASSWORD=${POSTGRES_PROJECTION_DB_PASSWORD}
     depends_on:
-      projection-db:
-        condition: service_healthy
       kafka-broker-1:
         condition: service_started
     networks:
-      - services_network
       - kafka_network
 
 networks:

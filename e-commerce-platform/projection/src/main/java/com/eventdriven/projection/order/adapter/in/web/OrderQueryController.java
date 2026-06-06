@@ -4,6 +4,10 @@ import com.eventdriven.projection.order.adapter.in.web.dto.response.GetOrderResp
 import com.eventdriven.projection.order.application.port.in.GetAllOrdersQueryUseCase;
 import com.eventdriven.projection.order.application.port.in.GetOrderQueryUseCase;
 import com.eventdriven.projection.order.application.query.GetOrderQuery;
+import com.eventdriven.projection.shared.web.swagger.GetAllOrdersOperation;
+import com.eventdriven.projection.shared.web.swagger.GetOrderOperation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Orders", description = "Read-only endpoints for querying order data")
 @RestController
 @RequestMapping("/api/v1/orders")
 @Validated
@@ -25,13 +30,16 @@ class OrderQueryController {
     private final GetAllOrdersQueryUseCase getAllOrdersQueryUseCase;
     private final OrderWebMapper orderWebMapper;
 
+    @GetOrderOperation
     @GetMapping("/{orderId}")
     public ResponseEntity<GetOrderResponse> getOrder(
-            @PathVariable @org.hibernate.validator.constraints.UUID String orderId) {
+            @Parameter(description = "UUID of the order", example = "b1c2d3e4-5f6a-7b8c-9d0e-1f2a3b4c5d6e")
+            @PathVariable("orderId") @org.hibernate.validator.constraints.UUID String orderId) {
         return ResponseEntity.ok(orderWebMapper.toGetOrderResponse(
                 getOrderQueryUseCase.getOrder(new GetOrderQuery(UUID.fromString(orderId)))));
     }
 
+    @GetAllOrdersOperation
     @GetMapping
     public ResponseEntity<List<GetOrderResponse>> getAllOrders() {
         return ResponseEntity.ok(getAllOrdersQueryUseCase.getAllOrders().stream()

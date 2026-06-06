@@ -22,7 +22,7 @@ public class PaymentEntity {
     @Column(name = "order_id", nullable = false, unique = true)
     private UUID orderId;
 
-    @Column(name = "amount", nullable = false, precision = 19, scale = 4)
+    @Column(name = "amount", nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)

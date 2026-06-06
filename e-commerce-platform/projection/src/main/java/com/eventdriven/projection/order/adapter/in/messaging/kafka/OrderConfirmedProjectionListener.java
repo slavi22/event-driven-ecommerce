@@ -39,7 +39,7 @@ class OrderConfirmedProjectionListener {
         GetOrderResult existing = getOrderQueryPort.getOrderById(orderId).get();
         updateOrderQueryPort.update(new GetOrderResult(
                 existing.orderId(), existing.customerId(), existing.totalAmount(),
-                "CONFIRMED", existing.createdAt(), payload.occurredOn()));
+                "CONFIRMED", existing.createdAt(), payload.occurredOn(), existing.items()));
         log.info("Order read model updated to CONFIRMED for order: {}", key);
     }
 

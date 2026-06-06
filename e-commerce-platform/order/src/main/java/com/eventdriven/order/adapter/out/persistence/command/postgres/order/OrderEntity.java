@@ -26,7 +26,7 @@ class OrderEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItemEntity> items;
 
-    @Column(name = "total_amount", nullable = false, precision = 19, scale = 4)
+    @Column(name = "total_amount", nullable = false, precision = 19, scale = 2)
     private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)

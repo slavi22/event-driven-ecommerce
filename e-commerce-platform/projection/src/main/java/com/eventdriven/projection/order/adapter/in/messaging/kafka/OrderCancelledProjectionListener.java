@@ -39,7 +39,7 @@ class OrderCancelledProjectionListener {
         GetOrderResult existing = getOrderQueryPort.getOrderById(orderId).get();
         updateOrderQueryPort.update(new GetOrderResult(
                 existing.orderId(), existing.customerId(), existing.totalAmount(),
-                "CANCELLED", existing.createdAt(), payload.occurredOn()));
+                "CANCELLED", existing.createdAt(), payload.occurredOn(), existing.items()));
         log.info("Order read model updated to CANCELLED for order: {}", key);
     }
 

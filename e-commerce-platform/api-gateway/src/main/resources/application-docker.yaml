@@ -1,5 +1,46 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${RESOURCE_SERVER_ISSUER_URI}
+          jwk-set-uri: ${RESOURCE_SERVER_JWK_SET_URI}
+
+oauth2:
+  jwt:
+    client-id: ${OAUTH2_CLIENT_ID}
+    user-id-claim: preferred_username
+
+keycloak:
+  auth-server-url: ${KEYCLOAK_AUTH_SERVER_URL}
+  realm: ${KEYCLOAK_REALM}
+
+gateway:
+  url: ${GATEWAY_URL}
+
 services:
   product-command-uri: http://product:8080
   order-command-uri: http://order:8080
   stock-command-uri: http://stock:8080
   projection-uri: http://projection:8080
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    persist-authorization: true
+    oauth:
+      client-id: ${OAUTH2_CLIENT_ID}
+      use-pkce-with-authorization-code-grant: true
+    urls:
+      - name: Product Service
+        url: /v3/api-docs/product
+      - name: Order Service
+        url: /v3/api-docs/order
+      - name: Stock Service
+        url: /v3/api-docs/stock
+      - name: Projection Service
+        url: /v3/api-docs/projection

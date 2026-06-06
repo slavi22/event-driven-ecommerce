@@ -26,7 +26,7 @@ public class ProductReadEntity {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "price", nullable = false, precision = 19, scale = 4)
+    @Column(name = "price", nullable = false, precision = 19, scale = 2)
     private BigDecimal price;
 
     @Enumerated(EnumType.STRING)

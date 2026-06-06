@@ -16,3 +16,5 @@ spring:
 app:
   scheduling:
     stock: 10000
+  swagger:
+    gateway-url: ${GATEWAY_URL}
