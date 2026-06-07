@@ -33,8 +33,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 class ApiGatewayApplicationTests {
 
-    // TODO: check everything
-
     @Autowired
     WebTestClient webTestClient;
 
