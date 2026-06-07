@@ -1,6 +1,7 @@
 package com.eventdriven.projection.order.application.service.query;
 
 import com.eventdriven.projection.order.application.dto.GetOrderResult;
+import com.eventdriven.projection.order.application.dto.OrderItemResult;
 import com.eventdriven.projection.order.application.exception.OrderNotFoundException;
 import com.eventdriven.projection.order.application.port.out.query.GetOrderQueryPort;
 import com.eventdriven.projection.order.application.query.GetOrderQuery;
@@ -13,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,7 +38,7 @@ class GetOrderQueryServiceTest {
         UUID orderId = UUID.randomUUID();
         GetOrderResult expected = new GetOrderResult(
                 orderId, UUID.randomUUID(), new BigDecimal("50.00"),
-                "PENDING", Instant.now(), Instant.now());
+                "PENDING", Instant.now(), Instant.now(), List.of(new OrderItemResult(UUID.randomUUID(), "Product A", 1)));
 
         when(getOrderQueryPort.getOrderById(orderId)).thenReturn(Optional.of(expected));
 

@@ -1,4 +1,4 @@
-package com.eventdriven.apigateway.config;
+package com.eventdriven.apigateway.routing;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -12,36 +12,10 @@ import org.springframework.http.HttpMethod;
 class GatewayConfig {
 
     private final ServiceRoutingProperties serviceRoutingProperties;
-    private final ApiDocsSecurityInjectionFilter apiDocsSecurityInjectionFilter;
 
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
-                // API docs proxy routes — inject Keycloak security scheme into downstream specs
-                .route("product-api-docs", r -> r
-                        .path("/v3/api-docs/product")
-                        .filters(f -> f
-                                .rewritePath("/v3/api-docs/product", "/v3/api-docs")
-                                .filter(apiDocsSecurityInjectionFilter.apply()))
-                        .uri(serviceRoutingProperties.getProductCommandUri()))
-                .route("order-api-docs", r -> r
-                        .path("/v3/api-docs/order")
-                        .filters(f -> f
-                                .rewritePath("/v3/api-docs/order", "/v3/api-docs")
-                                .filter(apiDocsSecurityInjectionFilter.apply()))
-                        .uri(serviceRoutingProperties.getOrderCommandUri()))
-                .route("stock-api-docs", r -> r
-                        .path("/v3/api-docs/stock")
-                        .filters(f -> f
-                                .rewritePath("/v3/api-docs/stock", "/v3/api-docs")
-                                .filter(apiDocsSecurityInjectionFilter.apply()))
-                        .uri(serviceRoutingProperties.getStockCommandUri()))
-                .route("projection-api-docs", r -> r
-                        .path("/v3/api-docs/projection")
-                        .filters(f -> f
-                                .rewritePath("/v3/api-docs/projection", "/v3/api-docs")
-                                .filter(apiDocsSecurityInjectionFilter.apply()))
-                        .uri(serviceRoutingProperties.getProjectionUri()))
                 // Product commands (POST create, PUT update, DELETE) => product service
                 .route("product-command", r -> r
                         .path("/api/v1/products", "/api/v1/products/**")

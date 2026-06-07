@@ -1,4 +1,4 @@
-package com.eventdriven.apigateway.config;
+package com.eventdriven.apigateway.security;
 
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;

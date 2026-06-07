@@ -1,4 +1,4 @@
-package com.eventdriven.apigateway.config;
+package com.eventdriven.apigateway.routing;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "services")
 @Getter
 @Setter
-class ServiceRoutingProperties {
+public class ServiceRoutingProperties {
     private String productCommandUri;
     private String orderCommandUri;
     private String stockCommandUri;

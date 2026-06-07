@@ -1,4 +1,4 @@
-package com.eventdriven.apigateway.config;
+package com.eventdriven.apigateway.apidocs;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,12 +6,14 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyResponseBodyGatewayFilterFactory;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
+@ConditionalOnProperty(name = "springdoc.api-docs.enabled", havingValue = "true", matchIfMissing = true)
 @RequiredArgsConstructor
 class ApiDocsSecurityInjectionFilter {
 
@@ -33,11 +35,10 @@ class ApiDocsSecurityInjectionFilter {
         var config = new ModifyResponseBodyGatewayFilterFactory.Config();
         config.setInClass(String.class);
         config.setOutClass(String.class);
-        config.setRewriteFunction(String.class, String.class, (exchange, body) -> {
-            if (body == null) return Mono.empty();
+        config.setRewriteFunction(String.class, String.class, (_, body) -> {
             try {
                 return Mono.just(injectSecurity(body));
-            } catch (Exception e) {
+            } catch (Exception _) {
                 return Mono.just(body);
             }
         });

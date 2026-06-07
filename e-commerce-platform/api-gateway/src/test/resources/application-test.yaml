@@ -1,3 +1,7 @@
+springdoc:
+  api-docs:
+    enabled: false
+
 oauth2:
   jwt:
     client-id: e-commerce
