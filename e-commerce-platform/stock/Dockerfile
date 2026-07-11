@@ -1,9 +1,6 @@
 FROM maven:3.9.16-eclipse-temurin-26 AS build
 WORKDIR /app
-COPY pom.xml .
-COPY common/ common/
-COPY contracts/ contracts/
-COPY stock/ stock/
+COPY . .
 RUN mvn clean package -pl stock -am -DskipTests
 
 FROM eclipse-temurin:25-jre

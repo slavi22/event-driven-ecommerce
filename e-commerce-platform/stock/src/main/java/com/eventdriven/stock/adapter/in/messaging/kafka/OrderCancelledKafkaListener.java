@@ -4,6 +4,8 @@ import com.eventdriven.contracts.order.event.OrderCancelledEventPayload;
 import com.eventdriven.contracts.order.event.OrderItemPayload;
 import com.eventdriven.stock.application.command.ReleaseStockCommand;
 import com.eventdriven.stock.application.port.in.ReleaseStockUseCase;
+import com.eventdriven.stock.application.port.out.idempotency.IsEventProcessedPort;
+import com.eventdriven.stock.application.port.out.idempotency.SaveProcessedEventPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.kafka.annotation.DltHandler;
@@ -22,6 +24,8 @@ import java.util.UUID;
 class OrderCancelledKafkaListener {
 
     private final ReleaseStockUseCase releaseStockUseCase;
+    private final IsEventProcessedPort isEventProcessedPort;
+    private final SaveProcessedEventPort saveProcessedEventPort;
 
     @KafkaListener(topics = "${kafka.topics.order-cancelled-topic}",
             groupId = "${kafka.config.consumer.groups.order-cancelled-events-group}",
@@ -31,12 +35,17 @@ class OrderCancelledKafkaListener {
         if (!payload.requiresStockRelease()) {
             return;
         }
+        if (isEventProcessedPort.isProcessed(payload.orderId(), "OrderCancelled")) {
+            log.warn("Event already processed, skipping");
+            return;
+        }
 
         for (OrderItemPayload item : payload.items()) {
             releaseStockUseCase.releaseStock(
                     new ReleaseStockCommand(UUID.fromString(payload.orderId()), UUID.fromString(item.productId()),
                                             item.quantity()));
         }
+        saveProcessedEventPort.save(payload.orderId(), "OrderCancelled");
     }
 
     @DltHandler

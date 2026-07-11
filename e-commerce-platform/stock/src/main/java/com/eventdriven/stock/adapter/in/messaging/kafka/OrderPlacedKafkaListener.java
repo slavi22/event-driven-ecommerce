@@ -4,6 +4,8 @@ import com.eventdriven.contracts.order.event.OrderItemPayload;
 import com.eventdriven.contracts.order.event.OrderPlacedEventPayload;
 import com.eventdriven.stock.application.command.ReserveStockCommand;
 import com.eventdriven.stock.application.port.in.ReserveStockUseCase;
+import com.eventdriven.stock.application.port.out.idempotency.IsEventProcessedPort;
+import com.eventdriven.stock.application.port.out.idempotency.SaveProcessedEventPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.kafka.annotation.DltHandler;
@@ -22,6 +24,8 @@ import java.util.UUID;
 class OrderPlacedKafkaListener {
 
     private final ReserveStockUseCase reserveStockUseCase;
+    private final IsEventProcessedPort isEventProcessedPort;
+    private final SaveProcessedEventPort saveProcessedEventPort;
 
     @KafkaListener(topics = "${kafka.topics.order-placed-topic}",
             groupId = "${kafka.config.consumer.groups.order-placed-events-group}",
@@ -29,11 +33,16 @@ class OrderPlacedKafkaListener {
     @Transactional
     public void onOrderPlaced(@Payload OrderPlacedEventPayload payload, @Header(KafkaHeaders.RECEIVED_KEY) String key) {
         log.info("Received OrderPlacedEvent with key {} and payload {}", key, payload);
+        if (isEventProcessedPort.isProcessed(payload.orderId(), "OrderPlaced")) {
+            log.warn("Event already processed, skipping");
+            return;
+        }
         for (OrderItemPayload item : payload.items()) {
             reserveStockUseCase.reserveStock(new ReserveStockCommand(UUID.fromString(payload.orderId()),
                                                                      UUID.fromString(item.productId()),
                                                                      item.quantity()));
         }
+        saveProcessedEventPort.save(payload.orderId(), "OrderPlaced");
     }
 
     @DltHandler
