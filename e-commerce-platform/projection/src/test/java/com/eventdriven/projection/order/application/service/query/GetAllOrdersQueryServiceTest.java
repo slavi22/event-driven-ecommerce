@@ -1,6 +1,7 @@
 package com.eventdriven.projection.order.application.service.query;
 
 import com.eventdriven.projection.order.application.dto.GetOrderResult;
+import com.eventdriven.projection.order.application.dto.OrderItemResult;
 import com.eventdriven.projection.order.application.port.out.query.GetAllOrdersQueryPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,9 +34,11 @@ class GetAllOrdersQueryServiceTest {
         // Arrange
         List<GetOrderResult> expected = List.of(
                 new GetOrderResult(UUID.randomUUID(), UUID.randomUUID(),
-                        new BigDecimal("100.00"), "CONFIRMED", Instant.now(), Instant.now()),
+                                   new BigDecimal("100.00"), "CONFIRMED", Instant.now(), Instant.now(),
+                                   List.of(new OrderItemResult(UUID.randomUUID(), "Product A", 1))),
                 new GetOrderResult(UUID.randomUUID(), UUID.randomUUID(),
-                        new BigDecimal("50.00"), "PENDING", Instant.now(), Instant.now()));
+                                   new BigDecimal("50.00"), "PENDING", Instant.now(), Instant.now(),
+                                   List.of(new OrderItemResult(UUID.randomUUID(), "Product B", 2))));
 
         when(getAllOrdersQueryPort.getAllOrders()).thenReturn(expected);
 

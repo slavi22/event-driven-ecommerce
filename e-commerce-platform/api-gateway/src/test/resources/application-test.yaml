@@ -1,4 +1,14 @@
+springdoc:
+  api-docs:
+    enabled: false
+
 oauth2:
   jwt:
     client-id: e-commerce
     user-id-claim: preferred_username
+
+services:
+  product-command-uri: http://localhost:1
+  order-command-uri: http://localhost:1
+  stock-command-uri: http://localhost:1
+  projection-uri: http://localhost:1

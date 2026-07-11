@@ -4,6 +4,7 @@ import com.eventdriven.stock.application.command.ReleaseStockCommand;
 import com.eventdriven.stock.application.exception.StockNotFoundException;
 import com.eventdriven.stock.application.port.out.command.GetStockCommandPort;
 import com.eventdriven.stock.application.port.out.command.UpdateStockPort;
+import com.eventdriven.stock.application.port.out.outbox.SaveOutboxEventPort;
 import com.eventdriven.stock.domain.entity.Stock;
 import com.eventdriven.stock.domain.valueobject.Quantity;
 import com.eventdriven.stock.domain.valueobject.StockId;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -29,6 +31,10 @@ class ReleaseStockServiceTest {
     private GetStockCommandPort getStockCommandPort;
     @Mock
     private UpdateStockPort updateStockPort;
+    @Mock
+    private SaveOutboxEventPort saveOutboxEventPort;
+    @Mock
+    private JsonMapper jsonMapper;
 
     @InjectMocks
     private ReleaseStockService releaseStockService;
@@ -41,6 +47,7 @@ class ReleaseStockServiceTest {
         Stock existingStock = buildStock(productId, 10);
         when(getStockCommandPort.getStockByProductId(productId)).thenReturn(Optional.of(existingStock));
         when(updateStockPort.update(any(Stock.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(jsonMapper.writeValueAsString(any())).thenReturn("{}");
 
         // Act
         releaseStockService.releaseStock(new ReleaseStockCommand(UUID.randomUUID(), productId, 5));
@@ -54,11 +61,13 @@ class ReleaseStockServiceTest {
     void testReleaseStock_whenStockNotFound_shouldThrowStockNotFoundException() {
         // Arrange
         UUID productId = UUID.randomUUID();
+        ReleaseStockCommand command = new ReleaseStockCommand(UUID.randomUUID(), productId, 5);
         when(getStockCommandPort.getStockByProductId(productId)).thenReturn(Optional.empty());
+
 
         // Act & Assert
         assertThrows(StockNotFoundException.class,
-                () -> releaseStockService.releaseStock(new ReleaseStockCommand(UUID.randomUUID(), productId, 5)));
+                     () -> releaseStockService.releaseStock(command));
 
         verify(updateStockPort, never()).update(any());
     }

@@ -21,7 +21,7 @@ public class PaymentReadEntity {
     @Column(nullable = false, updatable = false)
     private UUID orderId;
 
-    @Column(precision = 19, scale = 4)
+    @Column(precision = 19, scale = 2)
     private BigDecimal amount;
 
     @Column(nullable = false)

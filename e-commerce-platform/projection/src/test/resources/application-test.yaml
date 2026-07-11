@@ -10,3 +10,7 @@ spring:
     allow-bean-definition-overriding: true
   liquibase:
     enabled: false
+
+springdoc:
+  api-docs:
+    enabled: false

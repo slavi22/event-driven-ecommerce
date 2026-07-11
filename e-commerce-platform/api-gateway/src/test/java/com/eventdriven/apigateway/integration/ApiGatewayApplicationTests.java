@@ -28,7 +28,7 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebTestClient
+@AutoConfigureWebTestClient(timeout = "36000") // need the timeout, otherwise we will get => "java.lang.IllegalStateException: Timeout on blocking read for 5000000000 NANOSECONDS"
 @Testcontainers
 @ActiveProfiles("test")
 class ApiGatewayApplicationTests {
@@ -45,8 +45,10 @@ class ApiGatewayApplicationTests {
     @DynamicPropertySource
     static void registerKeycloakProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.security.oauth2.resourceserver.jwt.issuer-uri",
-                     () -> keycloakContainer.getAuthServerUrl() + "/realms/e-commerce-realm");
+                     () -> keycloakContainer.getAuthServerUrl() + "/realms/e-commerce");
     }
+
+    // Generic auth tests
 
     @Test
     @DisplayName("Given no authentication token, when accessing any protected endpoint, then should return 401 Unauthorized")
@@ -55,7 +57,8 @@ class ApiGatewayApplicationTests {
         String url = "/some/protected/route";
 
         // Act & Assert
-        webTestClient.get().uri(url).exchange().expectStatus().isUnauthorized();
+        webTestClient.get().uri(url).exchange()
+                     .expectStatus().isUnauthorized();
     }
 
     @Test
@@ -63,10 +66,11 @@ class ApiGatewayApplicationTests {
     void testAnyProtectedEndpoint_withInvalidAuthenticationToken_shouldReturnUnauthorized() {
         // Arrange
         String url = "/some/protected/route";
-        String invalidToken = "invalid-token";
 
         // Act & Assert
-        webTestClient.get().uri(url).header(HttpHeaders.AUTHORIZATION, "Bearer " + invalidToken).exchange()
+        webTestClient.get().uri(url)
+                     .header(HttpHeaders.AUTHORIZATION, "Bearer invalid-token")
+                     .exchange()
                      .expectStatus().isUnauthorized();
     }
 
@@ -75,37 +79,212 @@ class ApiGatewayApplicationTests {
     void testAnyProtectedEndpoint_withValidAuthenticationToken_shouldReturnOk() throws URISyntaxException {
         // Arrange
         String url = "/some/protected/route";
-        URI authorizationURI = new URIBuilder(keycloakContainer.getAuthServerUrl() +
-                                              "/realms/e-commerce-realm/protocol/openid-connect/token").build();
+        String token = obtainToken("user@gmail.com", "123");
+
+        // Act & Assert
+        // /some/protected/route has no matching gateway route so the response will be 404,
+        // which still confirms the request passed security (not 401).
+        webTestClient.get().uri(url)
+                     .header(HttpHeaders.AUTHORIZATION, token)
+                     .exchange()
+                     .expectStatus()
+                     .value(status -> {
+                         assertNotEquals(HttpStatus.UNAUTHORIZED.value(), status);
+                         assertNotEquals(HttpStatus.Series.SERVER_ERROR, HttpStatus.Series.resolve(status));
+                     });
+    }
+
+    // Public product browsing
+
+    @Test
+    @DisplayName("Given no authentication token, when browsing products, then should return any status other than 401")
+    void testGetProducts_withNoAuthenticationToken_shouldNotReturnUnauthorized() {
+        // Arrange
+        String url = "/api/v1/products";
+
+        // Act & Assert
+        webTestClient.get().uri(url).exchange()
+                     .expectStatus()
+                     .value(status -> assertNotEquals(HttpStatus.UNAUTHORIZED.value(), status));
+    }
+
+    @Test
+    @DisplayName("Given a customer token, when browsing products, then should return any status other than 401 or 403")
+    void testGetProducts_withCustomerToken_shouldNotReturnUnauthorizedOrForbidden() throws URISyntaxException {
+        // Arrange
+        String url = "/api/v1/products";
+        String token = obtainToken("user@gmail.com", "123");
+
+        // Act & Assert
+        webTestClient.get().uri(url)
+                     .header(HttpHeaders.AUTHORIZATION, token)
+                     .exchange()
+                     .expectStatus()
+                     .value(status -> {
+                         assertNotEquals(HttpStatus.UNAUTHORIZED.value(), status);
+                         assertNotEquals(HttpStatus.FORBIDDEN.value(), status);
+                     });
+    }
+
+    // Admin-only product write endpoints
+
+    @Test
+    @DisplayName("Given no authentication token, when creating a product, then should return 401 Unauthorized")
+    void testCreateProduct_withNoAuthenticationToken_shouldReturnUnauthorized() {
+        // Arrange
+        String url = "/api/v1/products";
+
+        // Act & Assert
+        webTestClient.post().uri(url).exchange()
+                     .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    @DisplayName("Given a customer token, when creating a product, then should return 403 Forbidden")
+    void testCreateProduct_withCustomerToken_shouldReturnForbidden() throws URISyntaxException {
+        // Arrange
+        String url = "/api/v1/products";
+        String token = obtainToken("user@gmail.com", "123");
+
+        // Act & Assert
+        webTestClient.post().uri(url)
+                     .header(HttpHeaders.AUTHORIZATION, token)
+                     .exchange()
+                     .expectStatus().isForbidden();
+    }
+
+    @Test
+    @DisplayName("Given an admin token, when creating a product, then should return any status other than 401 or 403")
+    void testCreateProduct_withAdminToken_shouldNotReturnUnauthorizedOrForbidden() throws URISyntaxException {
+        // Arrange
+        String url = "/api/v1/products";
+        String token = obtainToken("admin@gmail.com", "123");
+
+        // Act & Assert
+        webTestClient.post().uri(url)
+                     .header(HttpHeaders.AUTHORIZATION, token)
+                     .exchange()
+                     .expectStatus()
+                     .value(status -> {
+                         assertNotEquals(HttpStatus.UNAUTHORIZED.value(), status);
+                         assertNotEquals(HttpStatus.FORBIDDEN.value(), status);
+                     });
+    }
+
+    // Customer endpoints
+
+    @Test
+    @DisplayName("Given no authentication token, when placing an order, then should return 401 Unauthorized")
+    void testPlaceOrder_withNoAuthenticationToken_shouldReturnUnauthorized() {
+        // Arrange
+        String url = "/api/v1/orders";
+
+        // Act & Assert
+        webTestClient.post().uri(url).exchange()
+                     .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    @DisplayName("Given a customer token, when placing an order, then should return any status other than 401 or 403")
+    void testPlaceOrder_withCustomerToken_shouldNotReturnUnauthorizedOrForbidden() throws URISyntaxException {
+        // Arrange
+        String url = "/api/v1/orders";
+        String token = obtainToken("user@gmail.com", "123");
+
+        // Act & Assert
+        webTestClient.post().uri(url)
+                     .header(HttpHeaders.AUTHORIZATION, token)
+                     .exchange()
+                     .expectStatus()
+                     .value(status -> {
+                         assertNotEquals(HttpStatus.UNAUTHORIZED.value(), status);
+                         assertNotEquals(HttpStatus.FORBIDDEN.value(), status);
+                     });
+    }
+
+    @Test
+    @DisplayName("Given an admin token (who also holds the customer role), when placing an order, then should return any status other than 401 or 403")
+    void testPlaceOrder_withAdminToken_shouldNotReturnUnauthorizedOrForbidden() throws URISyntaxException {
+        // Arrange
+        String url = "/api/v1/orders";
+        String token = obtainToken("admin@gmail.com", "123");
+
+        // Act & Assert
+        webTestClient.post().uri(url)
+                     .header(HttpHeaders.AUTHORIZATION, token)
+                     .exchange()
+                     .expectStatus()
+                     .value(status -> {
+                         assertNotEquals(HttpStatus.UNAUTHORIZED.value(), status);
+                         assertNotEquals(HttpStatus.FORBIDDEN.value(), status);
+                     });
+    }
+
+    // Admin-only stock replenishment
+
+    @Test
+    @DisplayName("Given no authentication token, when replenishing stock, then should return 401 Unauthorized")
+    void testReplenishStock_withNoAuthenticationToken_shouldReturnUnauthorized() {
+        // Arrange
+        String url = "/api/v1/stocks/some-product-id/replenish";
+
+        // Act & Assert
+        webTestClient.post().uri(url).exchange()
+                     .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    @DisplayName("Given a customer token, when replenishing stock, then should return 403 Forbidden")
+    void testReplenishStock_withCustomerToken_shouldReturnForbidden() throws URISyntaxException {
+        // Arrange
+        String url = "/api/v1/stocks/some-product-id/replenish";
+        String token = obtainToken("user@gmail.com", "123");
+
+        // Act & Assert
+        webTestClient.post().uri(url)
+                     .header(HttpHeaders.AUTHORIZATION, token)
+                     .exchange()
+                     .expectStatus().isForbidden();
+    }
+
+    @Test
+    @DisplayName("Given an admin token, when replenishing stock, then should return any status other than 401 or 403")
+    void testReplenishStock_withAdminToken_shouldNotReturnUnauthorizedOrForbidden() throws URISyntaxException {
+        // Arrange
+        String url = "/api/v1/stocks/some-product-id/replenish";
+        String token = obtainToken("admin@gmail.com", "123");
+
+        // Act & Assert
+        webTestClient.post().uri(url)
+                     .header(HttpHeaders.AUTHORIZATION, token)
+                     .exchange()
+                     .expectStatus()
+                     .value(status -> {
+                         assertNotEquals(HttpStatus.UNAUTHORIZED.value(), status);
+                         assertNotEquals(HttpStatus.FORBIDDEN.value(), status);
+                     });
+    }
+
+    private String obtainToken(String username, String password) throws URISyntaxException {
+        URI tokenUri = new URIBuilder(
+                keycloakContainer.getAuthServerUrl() + "/realms/e-commerce/protocol/openid-connect/token").build();
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.put("grant_type", Collections.singletonList("password"));
         formData.put("client_id", Collections.singletonList("e-commerce"));
-        formData.put("username", Collections.singletonList("user@gmail.com"));
-        formData.put("password", Collections.singletonList("123"));
+        formData.put("username", Collections.singletonList(username));
+        formData.put("password", Collections.singletonList(password));
 
         String responseBody = webTestClient.post()
-                                           .uri(authorizationURI)
+                                           .uri(tokenUri)
                                            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                                           .body(BodyInserters.fromFormData(formData)).exchange()
+                                           .body(BodyInserters.fromFormData(formData))
+                                           .exchange()
                                            .expectBody(String.class)
                                            .returnResult()
                                            .getResponseBody();
 
         var jsonParser = new JacksonJsonParser();
-        String validToken = "Bearer " + jsonParser.parseMap(responseBody).get("access_token");
-
-
-        // Act & Assert
-        webTestClient.get().uri(url).header(HttpHeaders.AUTHORIZATION, validToken).exchange()
-                     .expectStatus()
-                     .value(status -> {
-                         assertNotEquals(HttpStatus.UNAUTHORIZED.value(), status); // TODO: change - assert that we don't get 401 Unauthorized, since it will currently fail with 404 Not Found since we don't have any real endpoints yet
-                         assertNotEquals(HttpStatus.Series.SERVER_ERROR, HttpStatus.Series.resolve(status)); // assert that we don't get any 500 error due to a runtime exception in the code
-                     });
-
+        return "Bearer " + jsonParser.parseMap(responseBody).get("access_token");
     }
-
-    // TODO: add more tests when i introduce real endpoints that will also require different roles (e.g. admin role for admin endpoints, customer role for customer endpoints, etc.)
-
 }

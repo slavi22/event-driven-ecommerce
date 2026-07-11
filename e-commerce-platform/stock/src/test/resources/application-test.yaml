@@ -11,6 +11,10 @@ spring:
   liquibase:
     enabled: false
 
+springdoc:
+  api-docs:
+    enabled: false
+
 app:
   scheduling:
     enabled: false

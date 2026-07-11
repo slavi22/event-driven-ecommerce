@@ -36,6 +36,7 @@ class OrderQueryPersistenceAdapter implements GetOrderQueryPort, GetAllOrdersQue
     @Override
     public GetOrderResult save(GetOrderResult result) {
         OrderReadEntity entity = orderQueryPersistenceMapper.toOrderReadEntity(result);
+        entity.getItems().forEach(item -> item.setOrder(entity));
         return orderQueryPersistenceMapper.toGetOrderResult(orderReadJpaRepository.save(entity));
     }
 

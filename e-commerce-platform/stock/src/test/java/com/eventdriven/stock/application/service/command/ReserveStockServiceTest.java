@@ -7,7 +7,6 @@ import com.eventdriven.stock.application.port.out.command.UpdateStockPort;
 import com.eventdriven.stock.application.port.out.outbox.OutboxEvent;
 import com.eventdriven.stock.application.port.out.outbox.SaveOutboxEventPort;
 import com.eventdriven.stock.domain.entity.Stock;
-import com.eventdriven.stock.domain.exception.StockDomainException;
 import com.eventdriven.stock.domain.valueobject.Quantity;
 import com.eventdriven.stock.domain.valueobject.StockId;
 import org.junit.jupiter.api.DisplayName;
@@ -81,30 +80,32 @@ class ReserveStockServiceTest {
     void testReserveStock_whenStockNotFound_shouldThrowStockNotFoundException() {
         // Arrange
         UUID productId = UUID.randomUUID();
+        ReserveStockCommand command = new ReserveStockCommand(UUID.randomUUID(), productId, 5);
         when(getStockCommandPort.getStockByProductId(productId)).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(StockNotFoundException.class,
-                () -> reserveStockService.reserveStock(new ReserveStockCommand(UUID.randomUUID(), productId, 5)));
+                () -> reserveStockService.reserveStock(command));
 
         verify(updateStockPort, never()).update(any());
         verify(saveOutboxEventPort, never()).save(any());
     }
 
     @Test
-    @DisplayName("Given insufficient stock, when reserving, then should throw StockDomainException")
-    void testReserveStock_withInsufficientStock_shouldThrowStockDomainException() {
+    @DisplayName("Given insufficient stock, when reserving, then should save reservation failed outbox event")
+    void testReserveStock_withInsufficientStock_shouldSaveReservationFailedEvent() throws Exception {
         // Arrange
         UUID productId = UUID.randomUUID();
         Stock existingStock = buildStock(productId, 3);
         when(getStockCommandPort.getStockByProductId(productId)).thenReturn(Optional.of(existingStock));
+        when(jsonMapper.writeValueAsString(any())).thenReturn("{}");
 
-        // Act & Assert
-        assertThrows(StockDomainException.class,
-                () -> reserveStockService.reserveStock(new ReserveStockCommand(UUID.randomUUID(), productId, 10)));
+        // Act
+        reserveStockService.reserveStock(new ReserveStockCommand(UUID.randomUUID(), productId, 10));
 
+        // Assert
         verify(updateStockPort, never()).update(any());
-        verify(saveOutboxEventPort, never()).save(any());
+        verify(saveOutboxEventPort, times(1)).save(any());
     }
 
     private Stock buildStock(UUID productId, int quantity) {

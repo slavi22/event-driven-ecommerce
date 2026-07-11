@@ -10,3 +10,7 @@ spring:
     show-sql: false
   kafka:
     bootstrap-servers: kafka-broker-1:9092
+
+app:
+  swagger:
+    gateway-url: ${GATEWAY_URL}

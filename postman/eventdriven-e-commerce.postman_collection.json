@@ -5,10 +5,29 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "53971871"
   },
-  "item": [],
+  "item": [
+    {
+      "name": "New Request",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    }
+  ],
   "auth": {
     "type": "oauth2",
     "oauth2": [
+      {
+        "key": "grant_type",
+        "value": "authorization_code_with_pkce",
+        "type": "string"
+      },
+      {
+        "key": "useBrowser",
+        "value": true,
+        "type": "boolean"
+      },
       {
         "key": "authUrl",
         "value": "{{auth_url}}",
@@ -28,11 +47,6 @@
         "key": "accessTokenUrl",
         "value": "{{access_token_url}}",
         "type": "string"
-      },
-      {
-        "key": "useBrowser",
-        "value": true,
-        "type": "boolean"
       },
       {
         "key": "addTokenTo",

@@ -10,4 +10,5 @@ public record CreateProductCommand(
         BigDecimal price,
         ProductCategory category,
         Integer initialQuantity) {
+    
 }
