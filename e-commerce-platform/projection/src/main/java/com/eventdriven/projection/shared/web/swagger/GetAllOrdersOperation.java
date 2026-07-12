@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@Operation(summary = "Get all orders", description = "Returns all orders from the read model.")
+@Operation(summary = "Get all orders", description = "Returns all orders for the authenticated user from the read model.")
 @ApiResponse(responseCode = "200", description = "List of orders",
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = GetOrderResponse.class))))
 @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)

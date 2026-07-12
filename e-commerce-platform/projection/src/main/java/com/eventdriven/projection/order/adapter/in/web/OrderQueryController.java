@@ -3,6 +3,7 @@ package com.eventdriven.projection.order.adapter.in.web;
 import com.eventdriven.projection.order.adapter.in.web.dto.response.GetOrderResponse;
 import com.eventdriven.projection.order.application.port.in.GetAllOrdersQueryUseCase;
 import com.eventdriven.projection.order.application.port.in.GetOrderQueryUseCase;
+import com.eventdriven.projection.order.application.query.GetAllOrdersQuery;
 import com.eventdriven.projection.order.application.query.GetOrderQuery;
 import com.eventdriven.projection.shared.web.swagger.GetAllOrdersOperation;
 import com.eventdriven.projection.shared.web.swagger.GetOrderOperation;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,8 +43,10 @@ class OrderQueryController {
 
     @GetAllOrdersOperation
     @GetMapping
-    public ResponseEntity<List<GetOrderResponse>> getAllOrders() {
-        return ResponseEntity.ok(getAllOrdersQueryUseCase.getAllOrders().stream()
+    public ResponseEntity<List<GetOrderResponse>> getAllOrders(
+            @Parameter(description = "ID of the authenticated user, injected by the API gateway", example = "user-123", required = true)
+            @RequestHeader("X-User-Id") String userId) {
+        return ResponseEntity.ok(getAllOrdersQueryUseCase.getAllOrders(new GetAllOrdersQuery(UUID.fromString(userId))).stream()
                 .map(orderWebMapper::toGetOrderResponse)
                 .toList());
     }

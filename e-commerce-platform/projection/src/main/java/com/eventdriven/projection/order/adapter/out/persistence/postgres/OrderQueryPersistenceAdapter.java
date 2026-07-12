@@ -27,8 +27,8 @@ class OrderQueryPersistenceAdapter implements GetOrderQueryPort, GetAllOrdersQue
     }
 
     @Override
-    public List<GetOrderResult> getAllOrders() {
-        return orderReadJpaRepository.findAll().stream()
+    public List<GetOrderResult> getAllOrders(UUID customerId) {
+        return orderReadJpaRepository.findAllByCustomerId(customerId).stream()
                 .map(orderQueryPersistenceMapper::toGetOrderResult)
                 .toList();
     }
