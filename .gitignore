@@ -41,4 +41,4 @@ infra/*
 !infra/.env.example
 !infra/docker-compose-dev.yaml
 !infra/build-images.sh
-!infra/build-images.ps1
+!infra/config

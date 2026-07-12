@@ -1,3 +1,15 @@
 spring:
   application:
     name: api-gateway
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  show-actuator: true

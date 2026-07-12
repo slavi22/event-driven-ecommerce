@@ -2,6 +2,15 @@ spring:
   application:
     name: notification
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
 kafka:
   topics:
     order-placed-topic: order-placed-topic

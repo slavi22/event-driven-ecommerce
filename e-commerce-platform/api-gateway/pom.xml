@@ -79,6 +79,18 @@
             <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
         </dependency>
 
+        <!-- O11y & monitoring -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- Development dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
