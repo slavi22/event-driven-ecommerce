@@ -1,0 +1,27 @@
+# TODO: fix and make this file tempo 3.0.0 compatible
+server:
+  http_listen_port: 3200
+  log_level: info
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: tempo:4317
+        http:
+          endpoint: tempo:4318
+
+overrides:
+  defaults:
+    compaction:
+      compaction_disabled: true
+
+storage:
+  trace:
+    backend: local
+    local:
+      path: /tmp/tempo/blocks
+    pool:
+      max_workers: 100
+      queue_depth: 10000

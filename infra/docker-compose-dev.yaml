@@ -150,12 +150,12 @@ services:
       - loki_network
 
   loki-read:
-    image: grafana/loki:latest
+    image: grafana/loki:3.7
     command: "-config.file=/etc/loki/config.yaml -target=read -query-scheduler.use-scheduler-ring=false"
     ports:
-      - 3101:3100
-      - 7946
-      - 9095
+      - "3101:3100"
+      - "7946"
+      - "9095"
     volumes:
       - ./config/loki/loki-config.yaml:/etc/loki/config.yaml
     depends_on:
@@ -172,12 +172,12 @@ services:
           - loki_network
 
   loki-write:
-    image: grafana/loki:latest
+    image: grafana/loki:3.7
     command: "-config.file=/etc/loki/config.yaml -target=write"
     ports:
-      - 3102:3100
-      - 7946
-      - 9095
+      - "3102:3100"
+      - "7946"
+      - "9095"
     volumes:
       - ./config/loki/loki-config.yaml:/etc/loki/config.yaml
     healthcheck:
@@ -192,7 +192,7 @@ services:
       <<: *loki-dns
 
   alloy:
-    image: grafana/alloy:latest
+    image: grafana/alloy:v1.17.1
     volumes:
       - ./config/alloy/alloy-local-config.yaml:/etc/alloy/config.alloy:ro
       - /var/run/docker.sock:/var/run/docker.sock
@@ -205,7 +205,7 @@ services:
       - loki_network
 
   minio:
-    image: minio/minio
+    image: minio/minio:latest
     entrypoint:
       - sh
       - -euc
@@ -219,7 +219,7 @@ services:
       - MINIO_PROMETHEUS_AUTH_TYPE=public
       - MINIO_UPDATE=off
     ports:
-      - 9000
+      - "9000"
     volumes:
       - ./minio-data:/data
     healthcheck:
@@ -231,7 +231,7 @@ services:
       - loki_network
 
   loki-backend:
-    image: grafana/loki:latest
+    image: grafana/loki:3.7
     volumes:
       - ./config/loki/loki-config.yaml:/etc/loki/config.yaml
     ports:
@@ -250,7 +250,7 @@ services:
       - loki_network
 
   loki-gateway:
-    image: nginx:latest
+    image: nginx:1.31
     depends_on:
       - loki-read
       - loki-write
@@ -318,6 +318,19 @@ services:
     networks:
       - loki_network
 
+  tempo:
+    image: grafana/tempo:3.0.2
+    command: -target=all -config.file=/etc/tempo.yaml
+    restart: unless-stopped
+    volumes:
+      - ./config/tempo/tempo.yaml:/etc/tempo.yaml
+      - ./tempo-data:/var/tempo
+    ports:
+      - "3200:3200" # tempo
+      - "4317:4317" # Tempo OTLP GRPC
+      - "4318:4318" # Tempo OTLP HTTP
+    networks:
+      - monitoring_network
 
 
   ### infrastructure
@@ -377,6 +390,11 @@ services:
       - KEYCLOAK_AUTH_SERVER_URL=${KEYCLOAK_AUTH_SERVER_URL}
       - KEYCLOAK_REALM=${KEYCLOAK_REALM}
       - GATEWAY_URL=${GATEWAY_URL}
+      # OTel
+      - JAVA_TOOL_OPTIONS=-javaagent:/app/libs/opentelemetry-javaagent.jar
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4318
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
     depends_on:
       - keycloak
     networks:
@@ -397,6 +415,11 @@ services:
       - POSTGRES_COMMAND_USER=${POSTGRES_COMMAND_DB_USER}
       - POSTGRES_COMMAND_PASSWORD=${POSTGRES_COMMAND_DB_PASSWORD}
       - GATEWAY_URL=${GATEWAY_URL}
+      # OTel
+      - JAVA_TOOL_OPTIONS=-javaagent:/app/libs/opentelemetry-javaagent.jar
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4318
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
     depends_on:
       command-db:
         condition: service_healthy
@@ -420,6 +443,11 @@ services:
       - POSTGRES_COMMAND_USER=${POSTGRES_COMMAND_DB_USER}
       - POSTGRES_COMMAND_PASSWORD=${POSTGRES_COMMAND_DB_PASSWORD}
       - GATEWAY_URL=${GATEWAY_URL}
+      # OTel
+      - JAVA_TOOL_OPTIONS=-javaagent:/app/libs/opentelemetry-javaagent.jar
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4318
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
     depends_on:
       command-db:
         condition: service_healthy
@@ -443,6 +471,11 @@ services:
       - POSTGRES_COMMAND_USER=${POSTGRES_COMMAND_DB_USER}
       - POSTGRES_COMMAND_PASSWORD=${POSTGRES_COMMAND_DB_PASSWORD}
       - GATEWAY_URL=${GATEWAY_URL}
+      # OTel
+      - JAVA_TOOL_OPTIONS=-javaagent:/app/libs/opentelemetry-javaagent.jar
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4318
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
     depends_on:
       command-db:
         condition: service_healthy
@@ -466,6 +499,11 @@ services:
       - POSTGRES_PROJECTION_USER=${POSTGRES_PROJECTION_DB_USER}
       - POSTGRES_PROJECTION_PASSWORD=${POSTGRES_PROJECTION_DB_PASSWORD}
       - GATEWAY_URL=${GATEWAY_URL}
+      # OTel
+      - JAVA_TOOL_OPTIONS=-javaagent:/app/libs/opentelemetry-javaagent.jar
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4318
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
     depends_on:
       projection-db:
         condition: service_healthy
@@ -488,6 +526,11 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - POSTGRES_COMMAND_USER=${POSTGRES_COMMAND_DB_USER}
       - POSTGRES_COMMAND_PASSWORD=${POSTGRES_COMMAND_DB_PASSWORD}
+      # OTel
+      - JAVA_TOOL_OPTIONS=-javaagent:/app/libs/opentelemetry-javaagent.jar
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4318
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
     depends_on:
       command-db:
         condition: service_healthy
@@ -508,6 +551,11 @@ services:
       - "8086:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      # OTel
+      - JAVA_TOOL_OPTIONS=-javaagent:/app/libs/opentelemetry-javaagent.jar
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4318
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
     depends_on:
       kafka-broker-1:
         condition: service_started

@@ -72,6 +72,11 @@
             <scope>runtime</scope>
         </dependency>
 
+        <dependency>
+            <groupId>io.opentelemetry.javaagent</groupId>
+            <artifactId>opentelemetry-javaagent</artifactId>
+        </dependency>
+
         <!-- Development dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -105,13 +110,11 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>kafka</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka-test</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <!-- Project modules -->
