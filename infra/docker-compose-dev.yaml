@@ -60,6 +60,12 @@ services:
       KAFKA_NUM_PARTITIONS: 3
     volumes:
       - ./kafka-broker-1/data:/tmp/kafka-logs
+    healthcheck:
+      test: [ "CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 || exit 1" ]
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - kafka_network
 
@@ -86,6 +92,12 @@ services:
       KAFKA_NUM_PARTITIONS: 3
     volumes:
       - ./kafka-broker-2/data:/tmp/kafka-logs
+    healthcheck:
+      test: [ "CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 || exit 1" ]
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - kafka_network
 
@@ -111,6 +123,12 @@ services:
       KAFKA_NUM_PARTITIONS: 3
     volumes:
       - ./kafka-broker-3/data:/tmp/kafka-logs
+    healthcheck:
+      test: [ "CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 || exit 1" ]
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - kafka_network
 
@@ -396,10 +414,18 @@ services:
       - OTEL_METRICS_EXPORTER=none
       - OTEL_LOGS_EXPORTER=none
     depends_on:
-      - keycloak
+      keycloak:
+        condition: service_started
+      kafka-broker-1:
+        condition: service_healthy
+      kafka-broker-2:
+        condition: service_healthy
+      kafka-broker-3:
+        condition: service_healthy
     networks:
       - services_network
       - keycloak_network
+      - kafka_network
       - monitoring_network
       - loki_network
 
@@ -424,7 +450,11 @@ services:
       command-db:
         condition: service_healthy
       kafka-broker-1:
-        condition: service_started
+        condition: service_healthy
+      kafka-broker-2:
+        condition: service_healthy
+      kafka-broker-3:
+        condition: service_healthy
     networks:
       - services_network
       - kafka_network
@@ -452,7 +482,11 @@ services:
       command-db:
         condition: service_healthy
       kafka-broker-1:
-        condition: service_started
+        condition: service_healthy
+      kafka-broker-2:
+        condition: service_healthy
+      kafka-broker-3:
+        condition: service_healthy
     networks:
       - services_network
       - kafka_network
@@ -480,7 +514,11 @@ services:
       command-db:
         condition: service_healthy
       kafka-broker-1:
-        condition: service_started
+        condition: service_healthy
+      kafka-broker-2:
+        condition: service_healthy
+      kafka-broker-3:
+        condition: service_healthy
     networks:
       - services_network
       - kafka_network
@@ -508,7 +546,11 @@ services:
       projection-db:
         condition: service_healthy
       kafka-broker-1:
-        condition: service_started
+        condition: service_healthy
+      kafka-broker-2:
+        condition: service_healthy
+      kafka-broker-3:
+        condition: service_healthy
     networks:
       - services_network
       - kafka_network
@@ -535,7 +577,11 @@ services:
       command-db:
         condition: service_healthy
       kafka-broker-1:
-        condition: service_started
+        condition: service_healthy
+      kafka-broker-2:
+        condition: service_healthy
+      kafka-broker-3:
+        condition: service_healthy
     networks:
       - services_network
       - kafka_network
@@ -558,7 +604,11 @@ services:
       - OTEL_LOGS_EXPORTER=none
     depends_on:
       kafka-broker-1:
-        condition: service_started
+        condition: service_healthy
+      kafka-broker-2:
+        condition: service_healthy
+      kafka-broker-3:
+        condition: service_healthy
     networks:
       - kafka_network
       - monitoring_network
