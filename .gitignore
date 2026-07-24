@@ -42,3 +42,6 @@ infra/*
 !infra/docker-compose-dev.yaml
 !infra/build-images.sh
 !infra/config
+!infra/helm
+infra/helm/*/*/Chart.lock
+infra/helm/*/*/*.md

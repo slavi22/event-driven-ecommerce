@@ -40,6 +40,8 @@ springdoc:
       use-pkce-with-authorization-code-grant: true
     urls-primary-name: Order Service
     urls:
+      - name: API Gateway
+        url: /v3/api-docs
       - name: Product Service
         url: /v3/api-docs/product
       - name: Order Service

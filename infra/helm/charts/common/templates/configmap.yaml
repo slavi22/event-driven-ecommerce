@@ -1,0 +1,14 @@
+{{- define "common.configmap" -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.global.configmapName }}
+data:
+  SPRING_PROFILES_ACTIVE: {{ .Values.global.springProfilesActive }}
+  KAFKA_BOOTSTRAP_SERVERS: {{ .Values.global.kafkaBootstrapServers }}
+  JAVA_TOOL_OPTIONS: {{ .Values.global.javaToolOptions }}
+  OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.global.otelExporterOtlpEndpoint }}
+  OTEL_METRICS_EXPORTER: {{ .Values.global.otelMetricsExporter }}
+  OTEL_LOGS_EXPORTER: {{ .Values.global.otelLogsExporter }}
+
+{{- end -}}
