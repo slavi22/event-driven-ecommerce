@@ -45,3 +45,6 @@ infra/*
 !infra/helm
 infra/helm/*/*/Chart.lock
 infra/helm/*/*/*.md
+infra/helm/charts/*/charts
+infra/helm/environements/*/charts
+infra/helm/vendor-charts/*/charts
