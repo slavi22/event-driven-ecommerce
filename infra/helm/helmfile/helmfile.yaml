@@ -1,0 +1,70 @@
+# Helmfile configuration
+# Documentation: https://helmfile.readthedocs.io/
+
+# We use local charts in the vendor-charts directory, but some of those charts declare
+# dependencies on remote sub-charts (e.g. loki's minio/rollout-operator dependencies, prometheus's sub-charts).
+# These repos must be registered so `helm dependency build` can resolve them.
+repositories:
+  - name: minio
+    url: https://charts.min.io/
+  - name: grafana
+    url: https://grafana.github.io/helm-charts
+  - name: prometheus-community
+    url: https://prometheus-community.github.io/helm-charts
+
+releases:
+  # TODO: grafana expects an existing secret "grafana-secret" with keys "admin-user" and
+  # "admin-password" - create it before applying, e.g.:
+  #   kubectl create secret generic grafana-secret \
+  #     --from-literal=admin-user=admin \
+  #     --from-literal=admin-password=<password>
+  # or wire up a helmfile-managed Secret release.
+  - name: grafana
+    chart: ../vendor-charts/grafana
+  - name: grafana-alloy
+    chart: ../vendor-charts/grafana-alloy
+  - name: grafana-loki
+    chart: ../vendor-charts/grafana-loki
+    values:
+      - ../vendor-charts/grafana-loki/monolithic-values.yaml
+  - name: grafana-tempo
+    chart: ../vendor-charts/grafana-tempo
+  - name: kafka
+    chart: ../vendor-charts/kafka
+    set:
+      - name: replicaCount
+        value: 3
+  - name: keycloak
+    chart: ../vendor-charts/keycloak
+  # TODO: postgres chart defaults auth.existingSecret to "custom-postgres-creds" with key
+  # "postgres-password" - create it before applying, e.g.:
+  #   kubectl create secret generic custom-postgres-creds \
+  #     --from-literal=postgres-password=<password>
+  # (or override auth.existingSecret/auth.username/auth.password here so the chart creates its
+  # own secret). Same applies to projection-db below.
+  - name: command-db
+    chart: ../vendor-charts/postgres
+    set:
+      - name: auth.database
+        value: command
+  - name: projection-db
+    chart: ../vendor-charts/postgres
+    set:
+      - name: service.nodePort
+        value: 30433
+      - name: auth.database
+        value: projection
+  - name: prometheus
+    chart: ../vendor-charts/prometheus
+  # TODO: ecommerce-prod's app charts (order, payment, product, stock, projection) read DB
+  # credentials via global.secretName "app-secret-creds" (see environments/prod/values.yaml) -
+  # create it before applying, with keys matching each chart's serviceType:
+  #   kubectl create secret generic app-secret-creds \
+  #     --from-literal=POSTGRES_COMMAND_USER=<user> \
+  #     --from-literal=POSTGRES_COMMAND_PASSWORD=<password> \
+  #     --from-literal=POSTGRES_PROJECTION_USER=<user> \
+  #     --from-literal=POSTGRES_PROJECTION_PASSWORD=<password>
+  # These must match whatever user/password is actually provisioned in command-db/projection-db
+  # (distinct from the custom-postgres-creds secret used by the postgres chart itself above).
+  - name: ecommerce-prod
+    chart: ../environments/prod

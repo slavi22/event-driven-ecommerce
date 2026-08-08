@@ -40,11 +40,11 @@ build/
 infra/*
 !infra/.env.example
 !infra/docker-compose-dev.yaml
-!infra/build-images.sh
+!infra/*.sh
 !infra/config
 !infra/helm
 infra/helm/*/*/Chart.lock
 infra/helm/*/*/*.md
 infra/helm/charts/*/charts
-infra/helm/environements/*/charts
+infra/helm/environments/*/charts
 infra/helm/vendor-charts/*/charts
