@@ -12,7 +12,7 @@ class SimulatedPaymentGatewayAdapter implements PaymentGatewayPort {
 
     @Override
     public PaymentGatewayResult charge(Payment payment) {
-        // won't be implemented not
+        // won't be implemented
         // 2 cases => success if the order amount is under 10k and failure if the order amount is above 10k
         if (payment.getAmount().getAmount().compareTo(new BigDecimal("10000")) < 0) {
             return new PaymentGatewayResult(true, null);
