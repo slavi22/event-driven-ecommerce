@@ -36,6 +36,8 @@ springdoc:
       client-id: ${OAUTH2_CLIENT_ID}
       use-pkce-with-authorization-code-grant: true
     urls:
+      - name: API Gateway
+        url: /v3/api-docs
       - name: Product Service
         url: /v3/api-docs/product
       - name: Order Service

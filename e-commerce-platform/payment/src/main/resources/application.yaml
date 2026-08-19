@@ -2,6 +2,19 @@ spring:
   application:
     name: payment
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
+
 kafka:
   topics:
     order-ready-for-payment-topic: order-ready-for-payment-topic

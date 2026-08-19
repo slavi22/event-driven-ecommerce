@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://projection-db:5432/projection
+    url: jdbc:postgresql://${POSTGRES_PROJECTION_HOST}:${POSTGRES_PROJECTION_PORT:5432}/projection
     username: ${POSTGRES_PROJECTION_USER}
     password: ${POSTGRES_PROJECTION_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -9,4 +9,8 @@ spring:
       ddl-auto: none
     show-sql: false
   kafka:
-    bootstrap-servers: kafka-broker-1:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+
+app:
+  swagger:
+    gateway-url: ${GATEWAY_URL}

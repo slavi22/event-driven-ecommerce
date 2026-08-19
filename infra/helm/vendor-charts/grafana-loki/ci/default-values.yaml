@@ -1,0 +1,31 @@
+---
+loki:
+  commonConfig:
+    replication_factor: 1
+  useTestSchema: true
+  storage:
+    bucketNames:
+      chunks: chunks
+      ruler: ruler
+      admin: admin
+
+ignoreMinioDeprecation: true
+minio:
+  enabled: true
+
+deploymentMode: Monolithic
+singleBinary:
+  replicas: 1
+  persistence:
+    enabled: true
+    size: 10Gi
+read:
+  replicas: 0
+write:
+  replicas: 0
+backend:
+  replicas: 0
+
+sidecar:
+  rules:
+    enabled: true

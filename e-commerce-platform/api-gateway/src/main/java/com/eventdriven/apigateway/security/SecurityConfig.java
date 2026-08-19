@@ -19,6 +19,8 @@ class SecurityConfig {
                 .authorizeExchange(authorize -> authorize
                         // Allow unauthenticated access to Swagger UI and API docs
                         .pathMatchers("swagger-ui/**", "swagger-ui**", "/v3/api-docs/**", "/v3/api-docs**").permitAll()
+                        // Allow unauthenticated access to the actuator endpoints
+                        .pathMatchers("/actuator/**").permitAll()
                         // Anyone can browse products without logging in
                         .pathMatchers(HttpMethod.GET, "/api/v1/products", "/api/v1/products/**").permitAll()
                         // Product writes are admin-only

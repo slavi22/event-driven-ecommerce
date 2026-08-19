@@ -4,6 +4,22 @@ spring:
   liquibase:
     change-log: classpath:db/db.changelog-master.yaml
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  show-actuator: true
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
+
 kafka:
   topics:
     product-created-topic: product-created-topic
