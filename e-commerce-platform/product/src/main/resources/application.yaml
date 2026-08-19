@@ -1,36 +1,3 @@
 spring:
   application:
     name: product
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-  endpoint:
-    health:
-      show-details: always
-
-springdoc:
-  show-actuator: true
-
-logging:
-  pattern:
-    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
-
-kafka:
-  topics:
-    product-created-topic: product-created-topic
-    product-updated-topic: product-updated-topic
-    product-deleted-topic: product-deleted-topic
-  config:
-    producer:
-      idempotency-enabled: true
-      acks: all
-      max-in-flight-requests-per-connection: 5
-      retries: 2147483647 # Integer.MAX_VALUE, this is the default value for retries in Spring Kafka, but we set it explicitly for clarity
-app:
-  scheduling:
-    enabled: true
-
-

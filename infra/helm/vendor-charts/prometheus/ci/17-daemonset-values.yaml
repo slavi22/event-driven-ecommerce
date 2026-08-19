@@ -1,5 +1,0 @@
-server:
-  daemonSet:
-    enabled: true
-  persistentVolume:
-    enabled: false
