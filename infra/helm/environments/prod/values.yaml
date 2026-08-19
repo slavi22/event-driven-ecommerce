@@ -1,0 +1,96 @@
+# Default values for prod.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  configmapName: prod-configmap
+  secretName: app-secret-creds
+  hpaName: prod-hpa-name
+  springProfilesActive: k8s
+  kafkaBootstrapServers: kafka-headless.default.svc.cluster.local:9092
+  javaToolOptions: -javaagent:/app/libs/opentelemetry-javaagent.jar
+  otelExporterOtlpEndpoint: http://grafana-tempo:4318
+  otelMetricsExporter: none
+  otelLogsExporter: none
+
+api-gateway:
+  extraEnv:
+    - name: RESOURCE_SERVER_ISSUER_URI
+      value: http://localhost:8000/realms/e-commerce # change to prod address on real prod
+    - name: RESOURCE_SERVER_JWK_SET_URI
+      value: http://keycloak.default.svc.cluster.local:8080/realms/e-commerce/protocol/openid-connect/certs
+    - name: OAUTH2_CLIENT_ID
+      value: e-commerce
+    - name: KEYCLOAK_AUTH_SERVER_URL
+      value: http://keycloak.default.svc.cluster.local:8080
+    - name: KEYCLOAK_REALM
+      value: e-commerce
+    - name: GATEWAY_URL
+      value: http://api-gateway-service:8080
+    - name: PRODUCT_COMMAND_URI
+      value: http://product-service:8080
+    - name: ORDER_COMMAND_URI
+      value: http://order-service:8080
+    - name: STOCK_COMMAND_URI
+      value: http://stock-service:8080
+    - name: PROJECTION_URI
+      value: http://projection-service:8080
+
+notification:
+  extraEnv:
+    - name: KAFKA_BOOTSTRAP_SERVERS
+      value: http://kafka-headless.default.svc.cluster.local:9092
+
+order:
+  extraEnv:
+    - name: POSTGRES_COMMAND_HOST
+      value: command-db-postgres
+    - name: POSTGRES_COMMAND_PORT
+      value: "5432"
+    - name: KAFKA_BOOTSTRAP_SERVERS
+      value: http://kafka-headless.default.svc.cluster.local:9092
+    - name: GATEWAY_URL
+      value: http://api-gateway-service:8080
+
+payment:
+  extraEnv:
+    - name: POSTGRES_COMMAND_HOST
+      value: command-db-postgres
+    - name: POSTGRES_COMMAND_PORT
+      value: "5432"
+    - name: KAFKA_BOOTSTRAP_SERVERS
+      value: http://kafka-headless.default.svc.cluster.local:9092
+
+product:
+  extraEnv:
+    - name: POSTGRES_COMMAND_HOST
+      value: command-db-postgres
+    - name: POSTGRES_COMMAND_PORT
+      value: "5432"
+    - name: KAFKA_BOOTSTRAP_SERVERS
+      value: http://kafka-headless.default.svc.cluster.local:9092
+    - name: GATEWAY_URL
+      value: http://api-gateway-service:8080
+
+
+projection:
+  extraEnv:
+    - name: POSTGRES_PROJECTION_HOST
+      value: projection-db-postgres
+    - name: POSTGRES_PROJECTION_PORT
+      value: "5432"
+    - name: KAFKA_BOOTSTRAP_SERVERS
+      value: http://kafka-headless.default.svc.cluster.local:9092
+    - name: GATEWAY_URL
+      value: http://api-gateway-service:8080
+
+stock:
+  extraEnv:
+    - name: POSTGRES_COMMAND_HOST
+      value: command-db-postgres
+    - name: POSTGRES_COMMAND_PORT
+      value: "5432"
+    - name: KAFKA_BOOTSTRAP_SERVERS
+      value: http://kafka-headless.default.svc.cluster.local:9092
+    - name: GATEWAY_URL
+      value: http://api-gateway-service:8080
