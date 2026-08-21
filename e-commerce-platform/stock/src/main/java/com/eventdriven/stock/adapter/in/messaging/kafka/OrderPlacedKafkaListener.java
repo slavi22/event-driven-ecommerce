@@ -41,6 +41,8 @@ class OrderPlacedKafkaListener {
             reserveStockUseCase.reserveStock(new ReserveStockCommand(UUID.fromString(payload.orderId()),
                                                                      UUID.fromString(item.productId()),
                                                                      item.quantity()));
+            // TODO: publish event to the projection service to update the stock level in the read model
+            // TODO: JUST ADD THE LISTENER TO THE PROJECTION SERVICE, DO NOT PUBLISH AN EVENT FROM HERE. THE PROJECTION SERVICE WILL LISTEN TO THE STOCK RESERVED EVENT AND UPDATE THE READ MODEL.
         }
         saveProcessedEventPort.save(payload.orderId(), "OrderPlaced");
     }

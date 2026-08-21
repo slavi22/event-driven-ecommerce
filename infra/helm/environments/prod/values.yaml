@@ -5,7 +5,7 @@
 global:
   configmapName: prod-configmap
   secretName: app-secret-creds
-  hpaName: prod-hpa-name
+  hpaName: prod-hpa
   springProfilesActive: k8s
   kafkaBootstrapServers: kafka-headless.default.svc.cluster.local:9092
   javaToolOptions: -javaagent:/app/libs/opentelemetry-javaagent.jar

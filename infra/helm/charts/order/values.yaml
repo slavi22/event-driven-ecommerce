@@ -3,11 +3,19 @@
 # Declare variables to be passed into your templates.
 
 deploymentName: order-deployment
-serviceName: order-service
+serviceName: order-service # used by the prometheus service monitor to scrape metrics
 secretName: app-secret-creds
 appLabel: order
 
 replicaCount: 1
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 1.5Gi
+  limits:
+    cpu: 500m
+    memory: 1.5Gi
 
 image:
   repository: order

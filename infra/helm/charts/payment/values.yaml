@@ -3,10 +3,18 @@
 # Declare variables to be passed into your templates.
 
 deploymentName: payment-deployment
-serviceName: payment-service
+serviceName: payment-service # used by the prometheus service monitor to scrape metrics
 appLabel: payment
 
 replicaCount: 1
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 1.5Gi
+  limits:
+    cpu: 500m
+    memory: 1.5Gi
 
 image:
   repository: payment

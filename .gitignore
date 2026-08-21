@@ -48,3 +48,5 @@ infra/helm/*/*/*.md
 infra/helm/charts/*/charts
 infra/helm/environments/*/charts
 infra/helm/vendor-charts/*/charts
+load-testing/*.sh
+!load-testing/seed-products-for-test-example.sh

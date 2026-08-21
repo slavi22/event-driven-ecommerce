@@ -3,10 +3,18 @@
 # Declare variables to be passed into your templates.
 
 deploymentName: notification-deployment
-serviceName: notification-service
+serviceName: notification-service # used by the prometheus service monitor to scrape metrics
 appLabel: notification
 
 replicaCount: 1
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 1.5Gi
+  limits:
+    cpu: 500m
+    memory: 1.5Gi
 
 image:
   repository: notification
