@@ -1090,37 +1090,37 @@ extraScrapeConfigs: |
   - job_name: "api-gateway"
     metrics_path: "/actuator/prometheus"
     static_configs:
-    - targets: ["api-gateway:8080"]
+    - targets: ["api-gateway-service:8080"]
 
   - job_name: "product"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["product:8080"]
+      - targets: ["product-service:8080"]
 
   - job_name: "order"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["order:8080"]
+      - targets: ["order-service:8080"]
 
   - job_name: "stock"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["stock:8080"]
+      - targets: ["stock-service:8080"]
 
   - job_name: "projection"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["projection:8080"]
+      - targets: ["projection-service:8080"]
 
   - job_name: "payment"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["payment:8080"]
+      - targets: ["payment-service:8080"]
 
   - job_name: "notification"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["notification:8080"]
+      - targets: ["notification-service:8080"]
 
 ## Prometheus server ConfigMap entries for rule files (allow prometheus labels interpolation)
 ruleFiles: {}

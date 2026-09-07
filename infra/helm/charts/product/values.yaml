@@ -3,10 +3,18 @@
 # Declare variables to be passed into your templates.
 
 deploymentName: product-deployment
-serviceName: product-service
+serviceName: product-service # used by the prometheus service monitor to scrape metrics
 appLabel: product
 
 replicaCount: 1
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 1.5Gi
+  limits:
+    cpu: 500m
+    memory: 1.5Gi
 
 image:
   repository: product

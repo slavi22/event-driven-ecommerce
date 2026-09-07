@@ -1,0 +1,29 @@
+# grafana
+helm install grafana .
+
+# grafana-alloy
+helm install grafana-alloy .
+
+# grafana-loki
+helm install grafana-loki . -f .\monolithic-values.yaml
+
+# grafana-tempo
+helm install grafana-tempo .
+
+# kafka
+helm install kafka . --set replicaCount=3
+
+# keycloak
+helm install keycloak .
+
+# command-db
+helm install command-db . --set auth.database=command
+
+# projection-db
+helm install projection-db . --set service.nodePort=30433,auth.database=projection
+
+# prometheus
+helm install prometheus .
+
+# ecommerce-prod
+helm install ecommerce-prod .

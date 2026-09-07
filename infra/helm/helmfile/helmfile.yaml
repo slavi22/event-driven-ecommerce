@@ -56,6 +56,11 @@ releases:
         value: projection
   - name: prometheus
     chart: ../vendor-charts/prometheus
+  - name: k8s-metrics-server
+    chart: ../vendor-charts/metrics-server
+    values:
+      - args:
+          - --kubelet-insecure-tls
   # TODO: ecommerce-prod's app charts (order, payment, product, stock, projection) read DB
   # credentials via global.secretName "app-secret-creds" (see environments/prod/values.yaml) -
   # create it before applying, with keys matching each chart's serviceType:

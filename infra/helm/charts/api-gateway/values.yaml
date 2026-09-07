@@ -3,10 +3,18 @@
 # Declare variables to be passed into your templates.
 
 deploymentName: api-gateway-deployment
-serviceName: api-gateway-service
+serviceName: api-gateway-service # used by the prometheus service monitor to scrape metrics
 appLabel: api-gateway
 
 replicaCount: 1
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 1.5Gi
+  limits:
+    cpu: 500m
+    memory: 1.5Gi
 
 image:
   repository: api-gateway

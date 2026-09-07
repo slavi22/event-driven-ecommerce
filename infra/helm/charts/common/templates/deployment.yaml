@@ -7,7 +7,9 @@ metadata:
   labels:
     app: {{ .Values.appLabel }}
 spec:
+  {{ if not (.Values.autoscaling).enabled }}
   replicas: {{ .Values.replicaCount }}
+  {{ end }}
   selector:
     matchLabels:
       app: {{ .Values.appLabel }}
@@ -24,6 +26,13 @@ spec:
           ports:
             - containerPort: {{ .Values.containerPort }}
               protocol: TCP
+          resources:
+            requests:
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}
           env:
             - name: SPRING_PROFILES_ACTIVE
               valueFrom:

@@ -3,10 +3,18 @@
 # Declare variables to be passed into your templates.
 
 deploymentName: projection-deployment
-serviceName: projection-service
+serviceName: projection-service # used by the prometheus service monitor to scrape metrics
 appLabel: projection
 
 replicaCount: 1
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 1.5Gi
+  limits:
+    cpu: 500m
+    memory: 1.5Gi
 
 image:
   repository: projection
