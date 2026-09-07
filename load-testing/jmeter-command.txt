@@ -1,0 +1,2 @@
+# Run from JMeter's directory
+jmeter -n -t "C:\Users\slavi22\Documents\Uni stuff\Masters\DIPLOMNA\thesis project\load-testing\Ecommerce-load-tests.jmx" -l results.jtl -e -o report-folder
