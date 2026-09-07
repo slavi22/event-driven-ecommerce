@@ -50,4 +50,4 @@ infra/helm/environments/*/charts
 infra/helm/vendor-charts/*/charts
 load-testing/*.sh
 !load-testing/seed-products-for-test-example.sh
-load-testing/jmeter-command-example.txt
+load-testing/jmeter-command.txt
