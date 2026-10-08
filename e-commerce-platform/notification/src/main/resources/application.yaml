@@ -1,34 +1,3 @@
 spring:
   application:
     name: notification
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-  endpoint:
-    health:
-      show-details: always
-
-logging:
-  pattern:
-    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
-
-kafka:
-  topics:
-    order-placed-topic: order-placed-topic
-    order-confirmed-topic: order-confirmed-topic
-    order-cancelled-topic: order-cancelled-topic
-    payment-processed-topic: payment-processed-topic
-    payment-failed-topic: payment-failed-topic
-  config:
-    consumer:
-      groups:
-        notification-order-placed-group: notification-order-placed-group
-        notification-order-confirmed-group: notification-order-confirmed-group
-        notification-order-cancelled-group: notification-order-cancelled-group
-        notification-payment-processed-group: notification-payment-processed-group
-        notification-payment-failed-group: notification-payment-failed-group
-      auto-offset: earliest
-      json-deserializer-trusted-packages: com.eventdriven.contracts.order.event,com.eventdriven.contracts.payment.event
