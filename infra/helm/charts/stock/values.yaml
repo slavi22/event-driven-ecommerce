@@ -1,0 +1,52 @@
+# Default values for stock.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+deploymentName: stock-deployment
+serviceName: stock-service # used by the prometheus service monitor to scrape metrics
+appLabel: stock
+
+replicaCount: 1
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 1.5Gi
+  limits:
+    cpu: 500m
+    memory: 1.5Gi
+
+image:
+  repository: stock
+  tag: v1
+
+containerPort: 8080
+
+otelEnabled: true
+
+service:
+  port: 8080
+  targetPort: 8080
+  type: ClusterIP
+
+serviceType: command
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: true
+  targetMemoryUtilizationPercentage: true
+  resource:
+    cpu:
+      averageUtilization: 70
+    memory:
+      averageUtilization: 70
+
+extraEnv:
+  - name: POSTGRES_COMMAND_HOST
+    value: <check>
+  - name: POSTGRES_COMMAND_PORT
+    value: <check>
+  - name: GATEWAY_URL
+    value: <check>

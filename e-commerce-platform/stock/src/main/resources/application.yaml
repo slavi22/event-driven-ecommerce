@@ -1,3 +1,48 @@
 spring:
   application:
     name: stock
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  show-actuator: true
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
+
+kafka:
+  topics:
+    product-created-topic: product-created-topic
+    stock-initialized-topic: stock-initialized-topic
+    stock-replenished-topic: stock-replenished-topic
+    stock-reserved-topic: stock-reserved-topic
+    stock-reservation-failed-topic: stock-reservation-failed-topic
+    stock-released-topic: stock-released-topic
+    stock-depleted-topic: stock-depleted-topic
+    order-placed-topic: order-placed-topic
+    order-cancelled-topic: order-cancelled-topic
+  config:
+    producer:
+      idempotency-enabled: true
+      acks: all
+      max-in-flight-requests-per-connection: 5
+      retries: 2147483647
+    consumer:
+      groups:
+        product-created-events-group: stock-product-created-group
+        order-placed-events-group: stock-order-placed-group
+        order-cancelled-events-group: stock-order-cancelled-group
+      auto-offset: earliest
+      json-deserializer-trusted-packages: com.eventdriven.contracts.product.event,com.eventdriven.contracts.order.event
+
+app:
+  scheduling:
+    enabled: true

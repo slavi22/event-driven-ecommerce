@@ -1,3 +1,54 @@
 spring:
   application:
     name: order
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  show-actuator: true
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
+
+kafka:
+  topics:
+    product-created-topic: product-created-topic
+    product-updated-topic: product-updated-topic
+    stock-reserved-topic: stock-reserved-topic
+    stock-reservation-failed-topic: stock-reservation-failed-topic
+    stock-released-topic: stock-released-topic
+    payment-processed-topic: payment-processed-topic
+    payment-failed-topic: payment-failed-topic
+    order-placed-topic: order-placed-topic
+    order-confirmed-topic: order-confirmed-topic
+    order-cancelled-topic: order-cancelled-topic
+    order-ready-for-payment-topic: order-ready-for-payment-topic
+  config:
+    producer:
+      idempotency-enabled: true
+      acks: all
+      max-in-flight-requests-per-connection: 5
+      retries: 2147483647
+    consumer:
+      groups:
+        product-created-events-group: order-product-created-group
+        product-updated-events-group: order-product-updated-group
+        stock-reserved-events-group: order-stock-reserved-group
+        stock-reservation-failed-events-group: order-stock-reservation-failed-group
+        stock-released-events-group: order-stock-released-group
+        payment-processed-events-group: order-payment-processed-group
+        payment-failed-events-group: order-payment-failed-group
+      auto-offset: earliest
+      json-deserializer-trusted-packages: com.eventdriven.contracts.product.event,com.eventdriven.contracts.stock.event,com.eventdriven.contracts.payment.event
+
+app:
+  scheduling:
+    enabled: true

@@ -40,3 +40,14 @@ build/
 infra/*
 !infra/.env.example
 !infra/docker-compose-dev.yaml
+!infra/*.sh
+!infra/config
+!infra/helm
+infra/helm/*/*/Chart.lock
+infra/helm/*/*/*.md
+infra/helm/charts/*/charts
+infra/helm/environments/*/charts
+infra/helm/vendor-charts/*/charts
+load-testing/*.sh
+!load-testing/seed-products-for-test-example.sh
+load-testing/jmeter-command.txt

@@ -1,0 +1,44 @@
+# Default values for api-gateway.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+deploymentName: api-gateway-deployment
+serviceName: api-gateway-service # used by the prometheus service monitor to scrape metrics
+appLabel: api-gateway
+
+replicaCount: 1
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 1.5Gi
+  limits:
+    cpu: 500m
+    memory: 1.5Gi
+
+image:
+  repository: api-gateway
+  tag: v1
+
+containerPort: 8080
+
+otelEnabled: true
+
+service:
+  port: 8080
+  targetPort: 8080
+  type: LoadBalancer
+
+extraEnv:
+  - name: RESOURCE_SERVER_ISSUER_URI
+    value: <keycloak-issuer-url>
+  - name: RESOURCE_SERVER_JWK_SET_URI
+    value: <keycloak-jwt-set-url>
+  - name: OAUTH2_CLIENT_ID
+    value: <client-id>
+  - name: KEYCLOAK_AUTH_SERVER_URL
+    value: <keycloak-auth-server-url>
+  - name: KEYCLOAK_REALM
+    value: <keycloak-realm>
+  - name: GATEWAY_URL
+    value: <gateway-url>
