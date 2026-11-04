@@ -5,10 +5,380 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "53971871"
   },
-  "item": [],
+  "item": [
+    {
+      "name": "Gateway requests",
+      "item": [
+        {
+          "name": "Product",
+          "item": [
+            {
+              "name": "Update product",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"productId\": \"a3f2c1d4-5b6e-7f8a-9b0c-1d2e3f4a5b6c\",\r\n    \"name\": \"Wireless Headphones Pro\",\r\n    \"description\": \"Premium noise-cancelling headphones with 40-hour battery life\",\r\n    \"price\": 179.99,\r\n    \"category\": \"ELECTRONICS\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{gateway_url}}/api/v1/products",
+                  "host": [
+                    "{{gateway_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "products"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create product",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"Wireless Headphones\",\r\n    \"description\": \"Premium noise-cancelling wireless headphones with 30-hour battery life\",\r\n    \"price\": 149.99,\r\n    \"category\": \"ELECTRONICS\",\r\n    \"initialQuantity\": 100\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{gateway_url}}/api/v1/products",
+                  "host": [
+                    "{{gateway_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "products"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete product",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{gateway_url}}/api/v1/products/a3f2c1d4-5b6e-7f8a-9b0c-1d2e3f4a5b6c",
+                  "host": [
+                    "{{gateway_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "products",
+                    "a3f2c1d4-5b6e-7f8a-9b0c-1d2e3f4a5b6c"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Stock",
+          "item": [
+            {
+              "name": "Replenish stock by product id",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"amount\": 50\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{gateway_url}}/api/v1/stocks/a3f2c1d4-5b6e-7f8a-9b0c-1d2e3f4a5b6c/replenish",
+                  "host": [
+                    "{{gateway_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "stocks",
+                    "a3f2c1d4-5b6e-7f8a-9b0c-1d2e3f4a5b6c",
+                    "replenish"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Order",
+          "item": [
+            {
+              "name": "Place order",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"items\": [\r\n        {\r\n            \"productId\": \"e988ed34-8cbb-4227-8a9a-b4040a26f726\",\r\n            \"quantity\": 2\r\n        }\r\n    ]\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{gateway_url}}/api/v1/orders",
+                  "host": [
+                    "{{gateway_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "orders"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Projection",
+          "item": [
+            {
+              "name": "Payments",
+              "item": [
+                {
+                  "name": "Get payment by order id from projection",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"name\": \"Wireless Headphones\",\r\n    \"description\": \"Premium noise-cancelling wireless headphones with 30-hour battery life\",\r\n    \"price\": 149.99,\r\n    \"category\": \"ELECTRONICS\",\r\n    \"initialQuantity\": 100\r\n}"
+                    },
+                    "url": {
+                      "raw": "{{gateway_url}}/api/v1/payments/order/b1c2d3e4-5f6a-7b8c-9d0e-1f2a3b4c5d6e",
+                      "host": [
+                        "{{gateway_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "payments",
+                        "order",
+                        "b1c2d3e4-5f6a-7b8c-9d0e-1f2a3b4c5d6e"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Orders",
+              "item": [
+                {
+                  "name": "Get all orders from projection by user",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{gateway_url}}/api/v1/orders",
+                      "host": [
+                        "{{gateway_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "orders"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get an order by id from projection",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{gateway_url}}/api/v1/orders/b1c2d3e4-5f6a-7b8c-9d0e-1f2a3b4c5d6e",
+                      "host": [
+                        "{{gateway_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "orders",
+                        "b1c2d3e4-5f6a-7b8c-9d0e-1f2a3b4c5d6e"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Products",
+              "item": [
+                {
+                  "name": "Get all products from projection",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{gateway_url}}/api/v1/products",
+                      "host": [
+                        "{{gateway_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "products"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get a product by id from projection",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{gateway_url}}/api/v1/products/a3f2c1d4-5b6e-7f8a-9b0c-1d2e3f4a5b6c",
+                      "host": [
+                        "{{gateway_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "products",
+                        "a3f2c1d4-5b6e-7f8a-9b0c-1d2e3f4a5b6c"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Stocks",
+              "item": [
+                {
+                  "name": "Get stock by product id from projection",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{gateway_url}}/api/v1/stocks/a3f2c1d4-5b6e-7f8a-9b0c-1d2e3f4a5b6c",
+                      "host": [
+                        "{{gateway_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "stocks",
+                        "a3f2c1d4-5b6e-7f8a-9b0c-1d2e3f4a5b6c"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Keycloak - openid config",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8000/realms/e-commerce/.well-known/openid-configuration",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "realms",
+            "e-commerce",
+            ".well-known",
+            "openid-configuration"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    }
+  ],
   "auth": {
     "type": "oauth2",
     "oauth2": [
+      {
+        "key": "grant_type",
+        "value": "authorization_code_with_pkce",
+        "type": "string"
+      },
+      {
+        "key": "useBrowser",
+        "value": true,
+        "type": "boolean"
+      },
       {
         "key": "authUrl",
         "value": "{{auth_url}}",
@@ -28,11 +398,6 @@
         "key": "accessTokenUrl",
         "value": "{{access_token_url}}",
         "type": "string"
-      },
-      {
-        "key": "useBrowser",
-        "value": true,
-        "type": "boolean"
       },
       {
         "key": "addTokenTo",

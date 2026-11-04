@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_COMMAND_HOST}:${POSTGRES_COMMAND_PORT:5432}/command
+    username: ${POSTGRES_COMMAND_USER}
+    password: ${POSTGRES_COMMAND_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: classpath:db/db.changelog-master.yaml
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+
+app:
+  scheduling:
+    payment: 10000

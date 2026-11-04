@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://projection-db:5432/projection
+    username: ${POSTGRES_PROJECTION_USER}
+    password: ${POSTGRES_PROJECTION_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+  kafka:
+    bootstrap-servers: kafka-broker-1:9092
+
+app:
+  swagger:
+    gateway-url: ${GATEWAY_URL}

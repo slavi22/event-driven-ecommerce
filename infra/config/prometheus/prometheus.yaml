@@ -1,0 +1,42 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["prometheus:9090"]
+
+  - job_name: "api-gateway"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["api-gateway:8080"]
+
+  - job_name: "product"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["product:8080"]
+
+  - job_name: "order"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["order:8080"]
+
+  - job_name: "stock"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["stock:8080"]
+
+  - job_name: "projection"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["projection:8080"]
+
+  - job_name: "payment"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["payment:8080"]
+
+  - job_name: "notification"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["notification:8080"]
